@@ -30,4 +30,30 @@ describe('App', () => {
       screen.getByRole('heading', { name: 'Visao geral' })
     ).toBeInTheDocument();
   });
+
+  it('renders the catalog route', () => {
+    render(
+      <MemoryRouter initialEntries={['/catalogo']}>
+        <App />
+      </MemoryRouter>
+    );
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Produtos DUNAMIS STORE' })
+    ).toBeInTheDocument();
+    expect(screen.getByText('Caneca Dunamis')).toBeInTheDocument();
+  });
+
+  it('renders a product detail route', () => {
+    render(
+      <MemoryRouter initialEntries={['/produto/caneca-dunamis']}>
+        <App />
+      </MemoryRouter>
+    );
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Caneca Dunamis' })
+    ).toBeInTheDocument();
+    expect(screen.getByText('SKU: DEMO-ACE-CANECA')).toBeInTheDocument();
+  });
 });

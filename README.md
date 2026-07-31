@@ -24,6 +24,7 @@ Implementado ate agora:
 - migrations iniciais do Cloudflare D1;
 - seed de demonstracao com categorias, produtos, variacoes, banners e pedidos;
 - comando para limpeza dos dados ficticios.
+- loja publica inicial com home, catalogo, busca, filtros e pagina de produto.
 
 ## Funcionalidades Planejadas
 

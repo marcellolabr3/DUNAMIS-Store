@@ -3,9 +3,11 @@ import { Route, Switch } from 'react-router-dom';
 import { AdminLayout } from './layouts/admin-layout';
 import { PublicLayout } from './layouts/public-layout';
 import { AdminOverviewPage } from './pages/admin-overview-page';
+import { CatalogPage } from './pages/catalog-page';
 import { HomePage } from './pages/home-page';
 import { NotFoundPage } from './pages/not-found-page';
 import { PlaceholderPage } from './pages/placeholder-page';
+import { ProductPage } from './pages/product-page';
 
 export function App() {
   return (
@@ -22,12 +24,8 @@ export function App() {
         <PublicLayout>
           <Switch>
             <Route exact path="/" component={HomePage} />
-            <Route path="/catalogo">
-              <PlaceholderPage
-                description="A listagem de produtos sera implementada na etapa da loja publica."
-                title="Catalogo"
-              />
-            </Route>
+            <Route exact path="/catalogo" component={CatalogPage} />
+            <Route path="/produto/:slug" component={ProductPage} />
             <Route path="/pedido">
               <PlaceholderPage
                 description="A consulta publica de pedidos sera implementada na etapa correspondente."
