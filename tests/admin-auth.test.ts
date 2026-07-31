@@ -5,7 +5,7 @@ import {
 } from '../functions/utils/session';
 
 const demoPasswordHash =
-  'pbkdf2$210000$dunamis-demo-admin-salt$M9CaIL4RhgJs1Jt9ENxbHAgjpY3jsiVBwXZcXurGR/I=';
+  'pbkdf2$100000$dunamis-demo-admin-salt$sJq7JNVwFAZwOUOqZA96ZLIQzR2ato1uuwns4EyyPiA=';
 
 describe('admin authentication helpers', () => {
   it('validates PBKDF2 password hashes', async () => {

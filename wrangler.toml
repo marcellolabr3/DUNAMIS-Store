@@ -5,7 +5,7 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "dunamis-store-db"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "a7197317-fc8a-41f7-a678-b111d91be50e"
 
 [[r2_buckets]]
 binding = "RECEIPTS_BUCKET"

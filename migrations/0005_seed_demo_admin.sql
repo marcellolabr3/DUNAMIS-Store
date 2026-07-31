@@ -9,7 +9,7 @@ INSERT INTO admins (
   'demo-admin-owner',
   'Administrador Dunamis',
   'admin@dunamisstore.local',
-  'pbkdf2$210000$dunamis-demo-admin-salt$M9CaIL4RhgJs1Jt9ENxbHAgjpY3jsiVBwXZcXurGR/I=',
+  'pbkdf2$100000$dunamis-demo-admin-salt$sJq7JNVwFAZwOUOqZA96ZLIQzR2ato1uuwns4EyyPiA=',
   'owner',
   1
 ) ON CONFLICT(email) DO NOTHING;
