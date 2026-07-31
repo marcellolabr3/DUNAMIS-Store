@@ -1,5 +1,6 @@
 import { OrderRepository } from '../repositories/order-repository';
 import { createOrderSchema } from '../schemas/order-schema';
+import { PaymentService } from './payments/payment-service';
 import type {
   CheckoutProductRow,
   CreateOrderInput,
@@ -7,7 +8,10 @@ import type {
 } from '../types/order';
 
 export class OrderService {
-  constructor(private readonly repository: OrderRepository) {}
+  constructor(
+    private readonly repository: OrderRepository,
+    private readonly paymentService: PaymentService
+  ) {}
 
   async createOrder(rawInput: unknown): Promise<CreateOrderResult> {
     const input = normalizeOrderInput(createOrderSchema.parse(rawInput));
@@ -31,6 +35,10 @@ export class OrderService {
     const total = subtotal + deliveryAmount - discountAmount;
     const sequence = await this.repository.getNextOrderSequence();
     const orderNumber = createOrderNumber(sequence);
+    const payment = await this.paymentService.createPayment({
+      orderNumber,
+      total
+    });
 
     return this.repository.persistOrder({
       orderId: crypto.randomUUID(),
@@ -45,7 +53,8 @@ export class OrderService {
       subtotal,
       deliveryAmount,
       discountAmount,
-      total
+      total,
+      payment
     });
   }
 }

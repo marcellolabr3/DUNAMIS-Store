@@ -30,7 +30,7 @@ export const defaultStoreSettings: StoreSettings = {
   contactEmail: 'contato@dunamisstore.local',
   contactPhone: '',
   whatsappNumber: '',
-  pixKey: '',
+  pixKey: 'pix-demo@dunamisstore.local',
   pixReceiverName: 'DUNAMIS STORE',
   pixReceiverCity: 'SAO PAULO',
   orderExpirationMinutes: 60,

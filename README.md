@@ -27,6 +27,7 @@ Implementado ate agora:
 - loja publica inicial com home, catalogo, busca, filtros e pagina de produto.
 - carrinho local com adicionar, remover, alterar quantidade e calculo visual.
 - checkout sem conta com dados do cliente, recebimento, revisao e criacao de pedido via API.
+- Pix manual com payload Copia e Cola, QR Code, valor do pedido e expiracao.
 
 ## Funcionalidades Planejadas
 

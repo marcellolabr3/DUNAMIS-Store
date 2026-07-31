@@ -33,6 +33,13 @@ export interface CreateOrderResult {
   publicToken: string;
   total: number;
   status: string;
+  payment: {
+    method: 'pix';
+    provider: 'manual_pix';
+    pixPayload: string;
+    qrCodeDataUrl: string;
+    expiresAt: string;
+  };
 }
 
 export interface CheckoutProductRow {

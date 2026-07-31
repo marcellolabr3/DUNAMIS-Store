@@ -41,6 +41,7 @@ export function CheckoutPage() {
   const [idempotencyKey] = useState(() => createIdempotencyKey());
   const [createdOrder, setCreatedOrder] = useState<CreatedOrder>();
   const [createdOrderItemCount, setCreatedOrderItemCount] = useState(0);
+  const [pixCopied, setPixCopied] = useState(false);
   const [error, setError] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const customerValid = customer.fullName.trim().length >= 3 && customer.whatsapp.trim().length >= 8;
@@ -106,6 +107,11 @@ export function CheckoutPage() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  async function copyPixPayload(payload: string) {
+    await navigator.clipboard.writeText(payload);
+    setPixCopied(true);
   }
 
   function submitCustomer(event: FormEvent<HTMLFormElement>) {
@@ -301,7 +307,7 @@ export function CheckoutPage() {
           {step === 4 && createdOrder && (
             <div className="grid gap-4">
               <p className="w-fit rounded bg-primary px-3 py-1 text-xs font-bold uppercase text-secondary">
-                Pedido criado
+                Pagamento
               </p>
               <h2 className="text-2xl font-black text-secondary">
                 {createdOrder.orderNumber}
@@ -312,16 +318,44 @@ export function CheckoutPage() {
               <p className="text-text-light">
                 Total: <strong>{formatMoney(createdOrder.total)}</strong>
               </p>
-              <p className="rounded-md border border-border bg-background p-4 text-sm text-text-light">
-                O Pix sera exibido na proxima etapa do desenvolvimento. O pedido
-                ja nasce aguardando pagamento.
-              </p>
-              <Link
-                className="w-fit rounded-md bg-secondary px-5 py-3 text-sm font-bold text-white"
-                to="/pedido"
-              >
-                Acompanhar pedido
-              </Link>
+              <div className="grid gap-5 lg:grid-cols-[20rem_1fr]">
+                <div className="rounded-md border border-border bg-background p-4">
+                  <img
+                    alt={`QR Code Pix do pedido ${createdOrder.orderNumber}`}
+                    className="mx-auto aspect-square w-full max-w-72 rounded bg-white"
+                    src={createdOrder.payment.qrCodeDataUrl}
+                  />
+                </div>
+                <div className="grid content-start gap-4">
+                  <div>
+                    <h3 className="font-black text-secondary">Pix Copia e Cola</h3>
+                    <textarea
+                      className="mt-2 min-h-32 w-full rounded-md border border-border bg-background p-3 text-xs text-text-light outline-none"
+                      readOnly
+                      value={createdOrder.payment.pixPayload}
+                    />
+                  </div>
+                  <button
+                    className="h-12 rounded-md bg-primary px-5 text-sm font-black text-secondary hover:bg-primary-hover"
+                    onClick={() => copyPixPayload(createdOrder.payment.pixPayload)}
+                    type="button"
+                  >
+                    {pixCopied ? 'Codigo copiado' : 'Copiar codigo Pix'}
+                  </button>
+                  <p className="rounded-md border border-border bg-background p-4 text-sm leading-6 text-text-light">
+                    Pague ate{' '}
+                    <strong>{formatPaymentExpiration(createdOrder.payment.expiresAt)}</strong>.
+                    Depois envie o comprovante na proxima etapa do fluxo. O pedido
+                    permanece aguardando conferencia manual.
+                  </p>
+                  <Link
+                    className="w-fit rounded-md bg-secondary px-5 py-3 text-sm font-bold text-white"
+                    to="/pedido"
+                  >
+                    Acompanhar pedido
+                  </Link>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -348,6 +382,13 @@ export function CheckoutPage() {
       </div>
     </section>
   );
+}
+
+function formatPaymentExpiration(expiresAt: string) {
+  return new Intl.DateTimeFormat('pt-BR', {
+    dateStyle: 'short',
+    timeStyle: 'short'
+  }).format(new Date(expiresAt));
 }
 
 interface TextInputProps {

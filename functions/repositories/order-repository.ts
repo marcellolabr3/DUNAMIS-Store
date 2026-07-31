@@ -3,6 +3,7 @@ import type {
   CreateOrderInput,
   CreateOrderResult
 } from '../types/order';
+import type { PaymentResult } from '../services/payments/payment-types';
 
 interface PersistOrderInput {
   orderId: string;
@@ -12,6 +13,7 @@ interface PersistOrderInput {
   customerId: string;
   addressId?: string;
   paymentId: string;
+  payment: PaymentResult;
   items: Array<{
     id: string;
     productId: string;
@@ -38,9 +40,20 @@ export class OrderRepository {
   ): Promise<CreateOrderResult | undefined> {
     const row = await this.db
       .prepare(
-        `SELECT o.order_number, o.lookup_code, o.public_token, o.total, o.status
+        `SELECT
+          o.order_number,
+          o.lookup_code,
+          o.public_token,
+          o.total,
+          o.status,
+          o.pix_payload,
+          o.pix_expiration_at,
+          p.provider,
+          p.method,
+          p.metadata
         FROM order_idempotency_keys k
         INNER JOIN orders o ON o.id = k.order_id
+        INNER JOIN payments p ON p.order_id = o.id
         WHERE k.idempotency_key = ?
         LIMIT 1`
       )
@@ -51,18 +64,32 @@ export class OrderRepository {
         public_token: string;
         total: number;
         status: string;
+        pix_payload: string;
+        pix_expiration_at: string;
+        provider: 'manual_pix';
+        method: 'pix';
+        metadata: string;
       }>();
 
     if (!row) {
       return undefined;
     }
 
+    const metadata = parsePaymentMetadata(row.metadata);
+
     return {
       orderNumber: row.order_number,
       lookupCode: row.lookup_code,
       publicToken: row.public_token,
       total: row.total,
-      status: row.status
+      status: row.status,
+      payment: {
+        method: row.method,
+        provider: row.provider,
+        pixPayload: row.pix_payload,
+        qrCodeDataUrl: metadata.qrCodeDataUrl ?? '',
+        expiresAt: row.pix_expiration_at
+      }
     };
   }
 
@@ -166,8 +193,10 @@ export class OrderRepository {
             delivery_amount,
             discount_amount,
             total,
-            customer_notes
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+            customer_notes,
+            pix_payload,
+            pix_expiration_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .bind(
           input.orderId,
@@ -184,7 +213,9 @@ export class OrderRepository {
           input.deliveryAmount,
           input.discountAmount,
           input.total,
-          input.input.customer.notes || null
+          input.input.customer.notes || null,
+          input.payment.pixPayload,
+          input.payment.expiresAt
         ),
       this.db
         .prepare(
@@ -208,12 +239,16 @@ export class OrderRepository {
         .bind(
           input.paymentId,
           input.orderId,
-          'manual_pix',
-          input.orderNumber,
-          'pix',
-          'PENDING',
-          input.total,
-          JSON.stringify({ idempotencyKey: input.input.idempotencyKey })
+          input.payment.provider,
+          input.payment.providerReference,
+          input.payment.method,
+          input.payment.status,
+          input.payment.amount,
+          JSON.stringify({
+            idempotencyKey: input.input.idempotencyKey,
+            pixExpiresAt: input.payment.expiresAt,
+            qrCodeDataUrl: input.payment.qrCodeDataUrl
+          })
         ),
       this.db
         .prepare(
@@ -273,7 +308,24 @@ export class OrderRepository {
       lookupCode: input.lookupCode,
       publicToken: input.publicToken,
       total: input.total,
-      status: 'PENDING_PAYMENT'
+      status: 'PENDING_PAYMENT',
+      payment: {
+        method: input.payment.method,
+        provider: input.payment.provider,
+        pixPayload: input.payment.pixPayload,
+        qrCodeDataUrl: input.payment.qrCodeDataUrl,
+        expiresAt: input.payment.expiresAt
+      }
     };
+  }
+}
+
+function parsePaymentMetadata(metadata: string): { qrCodeDataUrl?: string } {
+  try {
+    const parsed = JSON.parse(metadata) as { qrCodeDataUrl?: string };
+
+    return parsed;
+  } catch {
+    return {};
   }
 }

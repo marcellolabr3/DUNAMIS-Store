@@ -8,6 +8,8 @@ As migrations ficam em `migrations/` e devem ser versionadas no Git.
 
 - `0001_initial_schema.sql`: cria as tabelas minimas do e-commerce.
 - `0002_seed_store_settings.sql`: cria as configuracoes padrao da loja.
+- `0003_order_idempotency.sql`: registra chaves idempotentes de criacao de pedido.
+- `0004_default_manual_pix_settings.sql`: preenche Pix ficticio para desenvolvimento.
 
 ## Tabelas Iniciais
 

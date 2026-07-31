@@ -33,4 +33,11 @@ export interface CreatedOrder {
   publicToken: string;
   total: number;
   status: string;
+  payment: {
+    method: 'pix';
+    provider: 'manual_pix';
+    pixPayload: string;
+    qrCodeDataUrl: string;
+    expiresAt: string;
+  };
 }
