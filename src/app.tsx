@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 import { AdminProtectedRoute } from './components/admin-protected-route';
 import { AdminLayout } from './layouts/admin-layout';
 import { PublicLayout } from './layouts/public-layout';
+import { AdminProductsPage } from './pages/admin-products-page';
 import { AdminOverviewPage } from './pages/admin-overview-page';
 import { AdminLoginPage } from './pages/admin-login-page';
 import { CartPage } from './pages/cart-page';
@@ -22,6 +23,7 @@ export function App() {
           <AdminLayout>
             <Switch>
               <Route exact path="/admin" component={AdminOverviewPage} />
+              <Route path="/admin/produtos" component={AdminProductsPage} />
               <Route component={AdminOverviewPage} />
             </Switch>
           </AdminLayout>

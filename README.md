@@ -32,6 +32,8 @@ Implementado ate agora:
 - consulta publica de pedido por numero e codigo, com historico e dados limitados.
 - consulta por token seguro no link de acompanhamento.
 - autenticacao administrativa com login, sessao assinada em cookie HttpOnly e logout.
+- administracao de produtos com criacao, edicao, duplicacao, publicacao, estoque,
+  variacoes e imagens por URL.
 
 ## Funcionalidades Planejadas
 
