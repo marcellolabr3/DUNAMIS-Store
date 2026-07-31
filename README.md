@@ -26,6 +26,7 @@ Implementado ate agora:
 - comando para limpeza dos dados ficticios.
 - loja publica inicial com home, catalogo, busca, filtros e pagina de produto.
 - carrinho local com adicionar, remover, alterar quantidade e calculo visual.
+- checkout sem conta com dados do cliente, recebimento, revisao e criacao de pedido via API.
 
 ## Funcionalidades Planejadas
 

@@ -24,6 +24,7 @@ As migrations ficam em `migrations/` e devem ser versionadas no Git.
 - `payments`
 - `payment_receipts`
 - `order_status_history`
+- `order_idempotency_keys`
 - `banners`
 - `audit_logs`
 

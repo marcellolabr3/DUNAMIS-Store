@@ -5,6 +5,7 @@ import { PublicLayout } from './layouts/public-layout';
 import { AdminOverviewPage } from './pages/admin-overview-page';
 import { CartPage } from './pages/cart-page';
 import { CatalogPage } from './pages/catalog-page';
+import { CheckoutPage } from './pages/checkout-page';
 import { HomePage } from './pages/home-page';
 import { NotFoundPage } from './pages/not-found-page';
 import { PlaceholderPage } from './pages/placeholder-page';
@@ -34,12 +35,7 @@ export function App() {
               />
             </Route>
             <Route path="/carrinho" component={CartPage} />
-            <Route path="/checkout">
-              <PlaceholderPage
-                description="O checkout sem conta sera implementado na proxima etapa."
-                title="Checkout"
-              />
-            </Route>
+            <Route path="/checkout" component={CheckoutPage} />
             <Route component={NotFoundPage} />
           </Switch>
         </PublicLayout>
