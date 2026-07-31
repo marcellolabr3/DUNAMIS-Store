@@ -12,8 +12,12 @@ export function OrderTrackingPage() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const token = params.get('token');
-  const [orderNumber, setOrderNumber] = useState('');
-  const [lookupCode, setLookupCode] = useState('');
+  const initialOrderNumber = params.get('numero') ?? '';
+  const initialLookupCode = params.get('codigo') ?? '';
+  const [orderNumber, setOrderNumber] = useState(
+    initialOrderNumber.toUpperCase()
+  );
+  const [lookupCode, setLookupCode] = useState(initialLookupCode.toUpperCase());
   const [order, setOrder] = useState<PublicOrderTracking>();
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);

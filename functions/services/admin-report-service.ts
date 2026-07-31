@@ -44,6 +44,7 @@ export class AdminReportService {
         stockQuantity: item.stock_quantity
       })),
       recentOrders: recentOrders.results.map((order) => ({
+        id: order.id,
         orderNumber: order.order_number,
         customerName: order.customer_name,
         status: order.status,

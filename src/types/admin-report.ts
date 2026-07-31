@@ -15,6 +15,7 @@ export interface AdminReportData {
     stockQuantity: number;
   }>;
   recentOrders: Array<{
+    id: string;
     orderNumber: string;
     customerName: string;
     status: string;

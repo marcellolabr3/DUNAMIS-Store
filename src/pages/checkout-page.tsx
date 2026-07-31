@@ -420,10 +420,30 @@ export function CheckoutPage() {
                 Pagamento
               </p>
               <h2 className="text-2xl font-black text-secondary">
-                {createdOrder.orderNumber}
+                Pedido criado
               </h2>
-              <p className="text-text-light">
-                Codigo de consulta: <strong>{createdOrder.lookupCode}</strong>
+              <div className="grid gap-3 rounded-md border border-primary/40 bg-primary/10 p-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs font-bold uppercase text-text-light">
+                    Numero do pedido
+                  </p>
+                  <p className="mt-1 break-all text-xl font-black text-secondary">
+                    {createdOrder.orderNumber}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase text-text-light">
+                    Codigo de consulta
+                  </p>
+                  <p className="mt-1 break-all text-xl font-black text-secondary">
+                    {createdOrder.lookupCode}
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm leading-6 text-text-light">
+                Guarde esses dados. Eles tambem estao no botao de acompanhamento
+                abaixo, mas o numero e o codigo permitem consultar o pedido
+                manualmente depois.
               </p>
               <p className="text-text-light">
                 Total: <strong>{formatMoney(createdOrder.total)}</strong>
@@ -529,7 +549,7 @@ export function CheckoutPage() {
                   </div>
                   <Link
                     className="w-fit rounded-md bg-secondary px-5 py-3 text-sm font-bold text-white"
-                    to="/pedido"
+                    to={`/pedido?token=${createdOrder.publicToken}`}
                   >
                     Acompanhar pedido
                   </Link>

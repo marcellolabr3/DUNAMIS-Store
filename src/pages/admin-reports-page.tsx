@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { FileDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 import { getAdminReports } from '../services/admin-report-service';
 import type { AdminReportData } from '../types/admin-report';
@@ -121,9 +122,12 @@ export function ReportsContent({
                   key={order.orderNumber}
                 >
                   <div>
-                    <p className="font-semibold text-secondary">
+                    <Link
+                      className="font-semibold text-secondary hover:text-primary-hover"
+                      to={`/admin/pedidos?pedido=${order.id}`}
+                    >
                       {order.orderNumber}
-                    </p>
+                    </Link>
                     <p className="text-xs text-text-light">
                       {order.customerName} | {order.statusLabel}
                     </p>

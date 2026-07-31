@@ -14,6 +14,7 @@ export interface LowStockRow {
 }
 
 export interface RecentOrderRow {
+  id: string;
   order_number: string;
   customer_name: string;
   status: string;
@@ -78,6 +79,7 @@ export class AdminReportRepository {
     return this.db
       .prepare(
         `SELECT
+          o.id,
           o.order_number,
           c.full_name AS customer_name,
           o.status,

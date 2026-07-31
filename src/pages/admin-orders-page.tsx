@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   XCircle
 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 import {
   getAdminOrder,
@@ -23,6 +24,7 @@ import {
 import { formatMoney } from '../utils/money';
 
 export function AdminOrdersPage() {
+  const location = useLocation();
   const [orders, setOrders] = useState<AdminOrderSummary[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<AdminOrderDetails>();
   const [query, setQuery] = useState('');
@@ -85,7 +87,9 @@ export function AdminOrdersPage() {
   const attentionOrders = useMemo(
     () =>
       orders.filter((order) =>
-        ['PENDING_PAYMENT', 'RECEIPT_SUBMITTED'].includes(order.status)
+        ['PENDING_PAYMENT', 'RECEIPT_SUBMITTED', 'PAYMENT_REVIEW'].includes(
+          order.status
+        )
       ),
     [orders]
   );
@@ -105,6 +109,43 @@ export function AdminOrdersPage() {
     setSelectedOrder(data.order);
     setNote('');
   }
+
+  useEffect(() => {
+    let active = true;
+    const params = new URLSearchParams(location.search);
+    const orderId = params.get('pedido');
+
+    if (!orderId) {
+      return undefined;
+    }
+
+    const selectedOrderId = orderId;
+
+    async function loadSelectedOrder() {
+      setError('');
+
+      try {
+        const data = await getAdminOrder(selectedOrderId);
+
+        if (!active) {
+          return;
+        }
+
+        setSelectedOrder(data.order);
+        setNote('');
+      } catch {
+        if (active) {
+          setError('Nao foi possivel abrir o pedido selecionado.');
+        }
+      }
+    }
+
+    void loadSelectedOrder();
+
+    return () => {
+      active = false;
+    };
+  }, [location.search]);
 
   async function handlePayment(action: 'review' | 'confirm' | 'reject') {
     if (!selectedOrder) {
@@ -238,7 +279,7 @@ export function AdminOrdersPage() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_28rem]">
         <div className="space-y-4">
-          <div className="grid gap-3 rounded-md border border-border bg-surface p-4 md:grid-cols-[1fr_12rem_10rem_10rem]">
+          <div className="grid gap-3 rounded-md border border-border bg-surface p-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,12rem)_minmax(0,10rem)_minmax(0,10rem)]">
             <label className="relative block">
               <Search
                 aria-hidden="true"
@@ -247,14 +288,14 @@ export function AdminOrdersPage() {
               />
               <span className="sr-only">Buscar pedido</span>
               <input
-                className="input pl-10"
+                className="input min-w-0 pl-10"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Pedido, cliente ou WhatsApp"
                 value={query}
               />
             </label>
             <select
-              className="input"
+              className="input min-w-0"
               onChange={(event) => setStatus(event.target.value)}
               value={status}
             >
@@ -266,13 +307,13 @@ export function AdminOrdersPage() {
               ))}
             </select>
             <input
-              className="input"
+              className="input min-w-0"
               onChange={(event) => setDateFrom(event.target.value)}
               type="date"
               value={dateFrom}
             />
             <input
-              className="input"
+              className="input min-w-0"
               onChange={(event) => setDateTo(event.target.value)}
               type="date"
               value={dateTo}
