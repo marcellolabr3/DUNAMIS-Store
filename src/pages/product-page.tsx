@@ -128,9 +128,14 @@ export function ProductPage() {
     (variant) => variant.stockQuantity > 0
   );
   const sizes = uniqueValues(currentProduct.variants.map((variant) => variant.size));
-  const colors = uniqueValues(currentProduct.variants.map((variant) => variant.color));
   const resolvedSize = selectedSize ?? sizes[0];
-  const resolvedColor = selectedColor ?? colors[0];
+  const colors = uniqueValues(
+    currentProduct.variants
+      .filter((variant) => !sizes.length || variant.size === resolvedSize)
+      .map((variant) => variant.color)
+  );
+  const resolvedColor =
+    selectedColor && colors.includes(selectedColor) ? selectedColor : colors[0];
   const selectedVariant =
     currentProduct.variants.find((variant) => variant.id === selectedVariantId) ??
     activeVariants.find(
@@ -235,9 +240,15 @@ export function ProductPage() {
                 options={sizes}
                 selectedValue={resolvedSize}
                 onSelect={(value) => {
+                  const nextColors = uniqueValues(
+                    currentProduct.variants
+                      .filter((variant) => variant.size === value)
+                      .map((variant) => variant.color)
+                  );
                   setSelectedSize(value);
-                  setSelectedVariantId(undefined);
+                  setSelectedColor(nextColors[0]);
                   setQuantity(1);
+                  setSelectedVariantId(undefined);
                 }}
               />
             )}

@@ -736,18 +736,12 @@ function ProductForm({
       </Field>
 
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div>
           <h4 className="text-sm font-bold text-secondary">Variacoes</h4>
-          <button
-            className="inline-flex items-center gap-1 text-sm font-bold text-primary-hover"
-            onClick={() =>
-              updateField('variants', [...draft.variants, { ...emptyVariant }])
-            }
-            type="button"
-          >
-            <Plus aria-hidden="true" size={16} />
-            Adicionar
-          </button>
+          <p className="mt-1 text-xs font-semibold text-text-light">
+            Selecione tamanhos e cores, informe o estoque e gere a grade de
+            variacoes do produto.
+          </p>
         </div>
         <div className="space-y-3 rounded-md border border-border bg-background p-3">
           <div>
@@ -822,79 +816,71 @@ function ProductForm({
             </button>
           </div>
         </div>
-        {draft.variants.map((variant, index) => (
-          <div className="rounded-md border border-border p-3" key={variant.id ?? index}>
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <p className="text-xs font-bold uppercase text-text-light">
-                Variacao {index + 1}
-              </p>
-              <button
-                aria-label="Remover variacao"
-                className="inline-grid size-8 place-items-center rounded-md border border-border text-text-light hover:text-danger"
-                onClick={() => removeVariant(index)}
-                type="button"
-              >
-                <X aria-hidden="true" size={15} />
-              </button>
-            </div>
-            <div className="grid gap-2 sm:grid-cols-2">
-              <input
-                className="input"
-                onChange={(event) =>
-                  updateVariant(index, { ...variant, name: event.target.value })
-                }
-                placeholder="Nome"
-                required
-                value={variant.name}
-              />
-              <input
-                className="input"
-                onChange={(event) =>
-                  updateVariant(index, { ...variant, sku: event.target.value })
-                }
-                placeholder="SKU"
-                required
-                value={variant.sku}
-              />
-              <input
-                className="input"
-                onChange={(event) =>
-                  updateVariant(index, { ...variant, size: event.target.value })
-                }
-                placeholder="Tamanho"
-                value={variant.size ?? ''}
-              />
-              <input
-                className="input"
-                onChange={(event) =>
-                  updateVariant(index, { ...variant, color: event.target.value })
-                }
-                placeholder="Cor"
-                value={variant.color ?? ''}
-              />
-              <input
-                className="input"
-                min="0"
-                onChange={(event) =>
-                  updateVariant(index, {
-                    ...variant,
-                    stockQuantity: Number(event.target.value)
-                  })
-                }
-                placeholder="Estoque"
-                type="number"
-                value={variant.stockQuantity}
-              />
-              <Checkbox
-                checked={variant.active}
-                label="Ativa"
-                onChange={(checked) =>
-                  updateVariant(index, { ...variant, active: checked })
-                }
-              />
-            </div>
+        <div className="overflow-hidden rounded-md border border-border">
+          <div className="grid grid-cols-[1fr_5rem_5rem_2.5rem] gap-2 bg-background px-3 py-2 text-xs font-bold uppercase text-text-light sm:grid-cols-[1fr_8rem_5rem_5rem_2.5rem]">
+            <span>Variacao</span>
+            <span className="hidden sm:block">SKU</span>
+            <span>Estoque</span>
+            <span>Ativa</span>
+            <span />
           </div>
-        ))}
+          <div className="divide-y divide-border">
+            {draft.variants.map((variant, index) => (
+              <div
+                className="grid grid-cols-[1fr_5rem_5rem_2.5rem] items-center gap-2 px-3 py-2 sm:grid-cols-[1fr_8rem_5rem_5rem_2.5rem]"
+                key={variant.id ?? `${variant.sku}-${index}`}
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-secondary">
+                    {variantLabel(variant)}
+                  </p>
+                  <p className="truncate text-xs text-text-light sm:hidden">
+                    {variant.sku}
+                  </p>
+                </div>
+                <input
+                  className="input hidden sm:block"
+                  onChange={(event) =>
+                    updateVariant(index, { ...variant, sku: event.target.value })
+                  }
+                  required
+                  value={variant.sku}
+                />
+                <input
+                  className="input"
+                  min="0"
+                  onChange={(event) =>
+                    updateVariant(index, {
+                      ...variant,
+                      stockQuantity: Number(event.target.value)
+                    })
+                  }
+                  type="number"
+                  value={variant.stockQuantity}
+                />
+                <input
+                  checked={variant.active}
+                  className="size-4 accent-primary"
+                  onChange={(event) =>
+                    updateVariant(index, {
+                      ...variant,
+                      active: event.target.checked
+                    })
+                  }
+                  type="checkbox"
+                />
+                <button
+                  aria-label="Remover variacao"
+                  className="inline-grid size-9 place-items-center rounded-md border border-border text-danger hover:bg-danger/10"
+                  onClick={() => removeVariant(index)}
+                  type="button"
+                >
+                  <X aria-hidden="true" size={15} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-3">
@@ -1150,6 +1136,12 @@ function cleanDraft(draft: DraftProduct): AdminProductInput {
       stockQuantity: Number(variant.stockQuantity)
     }))
   };
+}
+
+function variantLabel(variant: AdminProductVariant) {
+  const details = [variant.size, variant.color].filter(Boolean).join(' / ');
+
+  return details || variant.name || 'Padrao';
 }
 
 function slugify(value: string) {
