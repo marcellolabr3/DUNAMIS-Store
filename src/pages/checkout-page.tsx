@@ -4,11 +4,13 @@ import { Link } from 'react-router-dom';
 
 import { useCart } from '../hooks/use-cart';
 import { createCheckoutOrder } from '../services/checkout-service';
+import { uploadPaymentReceipt } from '../services/receipt-service';
 import type {
   CheckoutAddress,
   CheckoutCustomer,
   CreatedOrder,
-  DeliveryMethod
+  DeliveryMethod,
+  UploadedReceipt
 } from '../types/checkout';
 import { createIdempotencyKey } from '../utils/idempotency';
 import { formatMoney } from '../utils/money';
@@ -42,6 +44,10 @@ export function CheckoutPage() {
   const [createdOrder, setCreatedOrder] = useState<CreatedOrder>();
   const [createdOrderItemCount, setCreatedOrderItemCount] = useState(0);
   const [pixCopied, setPixCopied] = useState(false);
+  const [receipt, setReceipt] = useState<UploadedReceipt>();
+  const [receiptFile, setReceiptFile] = useState<File>();
+  const [receiptError, setReceiptError] = useState<string>();
+  const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
   const [error, setError] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const customerValid = customer.fullName.trim().length >= 3 && customer.whatsapp.trim().length >= 8;
@@ -112,6 +118,28 @@ export function CheckoutPage() {
   async function copyPixPayload(payload: string) {
     await navigator.clipboard.writeText(payload);
     setPixCopied(true);
+  }
+
+  async function handleReceiptUpload() {
+    if (!createdOrder || !receiptFile) {
+      setReceiptError('Selecione um comprovante.');
+      return;
+    }
+
+    setReceiptError(undefined);
+    setIsUploadingReceipt(true);
+
+    try {
+      const uploadedReceipt = await uploadPaymentReceipt({
+        publicToken: createdOrder.publicToken,
+        file: receiptFile
+      });
+      setReceipt(uploadedReceipt);
+    } catch {
+      setReceiptError('Nao foi possivel enviar o comprovante.');
+    } finally {
+      setIsUploadingReceipt(false);
+    }
   }
 
   function submitCustomer(event: FormEvent<HTMLFormElement>) {
@@ -345,9 +373,43 @@ export function CheckoutPage() {
                   <p className="rounded-md border border-border bg-background p-4 text-sm leading-6 text-text-light">
                     Pague ate{' '}
                     <strong>{formatPaymentExpiration(createdOrder.payment.expiresAt)}</strong>.
-                    Depois envie o comprovante na proxima etapa do fluxo. O pedido
-                    permanece aguardando conferencia manual.
+                    Depois envie o comprovante. O pedido permanece aguardando
+                    conferencia manual.
                   </p>
+                  <div className="grid gap-3 rounded-md border border-border bg-surface p-4">
+                    <h3 className="font-black text-secondary">
+                      Enviar comprovante
+                    </h3>
+                    <input
+                      aria-label="Arquivo do comprovante"
+                      accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                      className="block w-full text-sm text-text-light file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-bold file:text-secondary"
+                      onChange={(event) =>
+                        setReceiptFile(event.target.files?.[0] ?? undefined)
+                      }
+                      type="file"
+                    />
+                    <button
+                      className="h-11 rounded-md bg-secondary px-5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={!receiptFile || isUploadingReceipt || Boolean(receipt)}
+                      onClick={handleReceiptUpload}
+                      type="button"
+                    >
+                      {isUploadingReceipt ? 'Enviando...' : 'Enviar comprovante'}
+                    </button>
+                    {receiptError && (
+                      <p className="text-sm font-semibold text-danger">
+                        {receiptError}
+                      </p>
+                    )}
+                    {receipt && (
+                      <p className="rounded-md bg-success/10 p-3 text-sm font-semibold text-success">
+                        Comprovante enviado em{' '}
+                        {formatPaymentExpiration(receipt.uploadedAt)}. O pedido
+                        aguardara conferencia manual.
+                      </p>
+                    )}
+                  </div>
                   <Link
                     className="w-fit rounded-md bg-secondary px-5 py-3 text-sm font-bold text-white"
                     to="/pedido"

@@ -28,6 +28,7 @@ Implementado ate agora:
 - carrinho local com adicionar, remover, alterar quantidade e calculo visual.
 - checkout sem conta com dados do cliente, recebimento, revisao e criacao de pedido via API.
 - Pix manual com payload Copia e Cola, QR Code, valor do pedido e expiracao.
+- upload privado de comprovante com validacao de arquivo e status `RECEIPT_SUBMITTED`.
 
 ## Funcionalidades Planejadas
 

@@ -41,3 +41,10 @@ export interface CreatedOrder {
     expiresAt: string;
   };
 }
+
+export interface UploadedReceipt {
+  receiptId: string;
+  orderNumber: string;
+  status: 'RECEIPT_SUBMITTED';
+  uploadedAt: string;
+}
