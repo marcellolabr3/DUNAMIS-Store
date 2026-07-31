@@ -49,6 +49,7 @@ export class AdminProductRepository {
           p.promotional_price,
           p.active,
           p.featured,
+          p.home_display_order,
           p.track_stock,
           p.created_at,
           p.updated_at
@@ -77,6 +78,7 @@ export class AdminProductRepository {
           p.promotional_price,
           p.active,
           p.featured,
+          p.home_display_order,
           p.track_stock,
           p.created_at,
           p.updated_at
@@ -131,8 +133,8 @@ export class AdminProductRepository {
         .prepare(
           `INSERT INTO products (
             id, category_id, name, slug, short_description, description, sku,
-            price, promotional_price, active, featured, track_stock
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+            price, promotional_price, active, featured, home_display_order, track_stock
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .bind(
           input.id,
@@ -146,6 +148,7 @@ export class AdminProductRepository {
           input.promotionalPrice ?? null,
           input.active ? 1 : 0,
           input.featured ? 1 : 0,
+          input.homeDisplayOrder,
           input.trackStock ? 1 : 0
         ),
       ...input.variants.map((variant) =>
@@ -211,6 +214,7 @@ export class AdminProductRepository {
             promotional_price = ?,
             active = ?,
             featured = ?,
+            home_display_order = ?,
             track_stock = ?,
             updated_at = CURRENT_TIMESTAMP
           WHERE id = ? AND deleted_at IS NULL`
@@ -226,6 +230,7 @@ export class AdminProductRepository {
           input.promotionalPrice ?? null,
           input.active ? 1 : 0,
           input.featured ? 1 : 0,
+          input.homeDisplayOrder,
           input.trackStock ? 1 : 0,
           id
         ),

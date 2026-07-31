@@ -17,6 +17,7 @@ export interface AdminProductRow {
   promotional_price: number | null;
   active: number;
   featured: number;
+  home_display_order: number;
   track_stock: number;
   created_at: string;
   updated_at: string;

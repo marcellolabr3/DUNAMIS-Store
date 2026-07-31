@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { Redirect, useHistory } from 'react-router-dom';
+import { Link, Redirect, useHistory } from 'react-router-dom';
 
 import { TurnstileField } from '../components/turnstile-field';
 import { useAdminAuth } from '../hooks/use-admin-auth';
@@ -84,6 +84,12 @@ export function AdminLoginPage() {
         <p className="text-xs leading-5 text-text-light">
           Desenvolvimento: admin@dunamisstore.local / Dunamis@123
         </p>
+        <Link
+          className="text-center text-sm font-bold text-primary-hover hover:text-secondary"
+          to="/"
+        >
+          Voltar para a loja
+        </Link>
       </form>
     </section>
   );

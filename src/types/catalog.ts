@@ -41,6 +41,7 @@ export interface Product {
   promotionalPrice?: number;
   active: boolean;
   featured: boolean;
+  homeDisplayOrder?: number;
   trackStock: boolean;
   createdAt: string;
   images: ProductImage[];

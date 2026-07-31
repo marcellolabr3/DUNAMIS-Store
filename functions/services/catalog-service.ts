@@ -12,7 +12,11 @@ export class CatalogService {
     const [categories, banners, products] = await Promise.all([
       this.repository.getCategories(),
       this.repository.getBanners(),
-      this.repository.getProducts({ limit: 8 })
+      this.repository.getProducts({
+        featuredOnly: true,
+        homeOrder: true,
+        limit: 48
+      })
     ]);
 
     return {
@@ -120,6 +124,7 @@ function mapProduct(
     promotionalPrice: row.promotional_price ?? undefined,
     active: row.active === 1,
     featured: row.featured === 1,
+    homeDisplayOrder: row.home_display_order,
     trackStock: row.track_stock === 1,
     createdAt: row.created_at,
     images: images

@@ -133,6 +133,7 @@ export function AdminProductsPage() {
       promotionalPrice: product.promotionalPrice,
       active: product.active,
       featured: product.featured,
+      homeDisplayOrder: product.homeDisplayOrder,
       trackStock: product.trackStock,
       images: product.images,
       variants: product.variants
@@ -653,7 +654,7 @@ function ProductForm({
         />
         <Checkbox
           checked={draft.featured}
-          label="Produto em destaque"
+          label="Exibir na pagina inicial"
           onChange={(checked) => updateField('featured', checked)}
         />
         <Checkbox
@@ -662,6 +663,18 @@ function ProductForm({
           onChange={(checked) => updateField('trackStock', checked)}
         />
       </div>
+
+      <Field label="Ordem na pagina inicial">
+        <input
+          className="input"
+          min="0"
+          onChange={(event) =>
+            updateField('homeDisplayOrder', Number(event.target.value))
+          }
+          type="number"
+          value={draft.homeDisplayOrder}
+        />
+      </Field>
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
@@ -956,6 +969,7 @@ function makeEmptyDraft(categoryId: string): DraftProduct {
     promotionalPrice: null,
     active: true,
     featured: false,
+    homeDisplayOrder: 0,
     trackStock: true,
     images: [],
     variants: [{ ...emptyVariant }]
@@ -975,6 +989,7 @@ function productToDraft(product: AdminProduct): DraftProduct {
     promotionalPrice: product.promotionalPrice,
     active: product.active,
     featured: product.featured,
+    homeDisplayOrder: product.homeDisplayOrder,
     trackStock: product.trackStock,
     images: product.images,
     variants: product.variants
@@ -993,6 +1008,7 @@ function cleanDraft(draft: DraftProduct): AdminProductInput {
     promotionalPrice: draft.promotionalPrice,
     active: draft.active,
     featured: draft.featured,
+    homeDisplayOrder: Number(draft.homeDisplayOrder),
     trackStock: draft.trackStock,
     images: draft.images.filter((image) => image.url.trim()),
     variants: draft.variants.map((variant) => ({

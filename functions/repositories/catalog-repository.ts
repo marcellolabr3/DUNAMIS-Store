@@ -36,6 +36,8 @@ export class CatalogRepository {
     query?: string;
     sort?: string;
     limit?: number;
+    featuredOnly?: boolean;
+    homeOrder?: boolean;
   }) {
     const conditions = ['p.active = 1', 'p.deleted_at IS NULL'];
     const bindings: string[] = [];
@@ -50,8 +52,14 @@ export class CatalogRepository {
       bindings.push(`%${options.query}%`, `%${options.query}%`);
     }
 
+    if (options.featuredOnly) {
+      conditions.push('p.featured = 1');
+    }
+
     const orderBy =
-      options.sort === 'price_asc'
+      options.homeOrder
+        ? 'p.home_display_order ASC, p.created_at DESC'
+        : options.sort === 'price_asc'
         ? 'COALESCE(p.promotional_price, p.price) ASC'
         : options.sort === 'price_desc'
           ? 'COALESCE(p.promotional_price, p.price) DESC'
@@ -73,6 +81,7 @@ export class CatalogRepository {
           p.promotional_price,
           p.active,
           p.featured,
+          p.home_display_order,
           p.track_stock,
           p.created_at
         FROM products p
@@ -102,6 +111,7 @@ export class CatalogRepository {
           p.promotional_price,
           p.active,
           p.featured,
+          p.home_display_order,
           p.track_stock,
           p.created_at
         FROM products p

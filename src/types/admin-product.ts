@@ -36,6 +36,7 @@ export interface AdminProduct {
   promotionalPrice: number | null;
   active: boolean;
   featured: boolean;
+  homeDisplayOrder: number;
   trackStock: boolean;
   createdAt: string;
   updatedAt: string;
@@ -55,6 +56,7 @@ export interface AdminProductInput {
   promotionalPrice: number | null;
   active: boolean;
   featured: boolean;
+  homeDisplayOrder: number;
   trackStock: boolean;
   images: AdminProductImage[];
   variants: AdminProductVariant[];

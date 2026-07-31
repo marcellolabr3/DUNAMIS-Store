@@ -78,6 +78,7 @@ export class AdminProductService {
       promotionalPrice: product.promotionalPrice,
       active: false,
       featured: product.featured,
+      homeDisplayOrder: product.homeDisplayOrder,
       trackStock: product.trackStock,
       images: product.images.map((image) => ({
         url: image.url,
@@ -190,6 +191,7 @@ function mapProduct(
     promotionalPrice: row.promotional_price,
     active: row.active === 1,
     featured: row.featured === 1,
+    homeDisplayOrder: row.home_display_order,
     trackStock: row.track_stock === 1,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

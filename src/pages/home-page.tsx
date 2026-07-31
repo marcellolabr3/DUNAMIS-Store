@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { ProductSection } from '../components/product-section';
@@ -15,6 +16,7 @@ export function HomePage() {
   const [categories, setCategories] = useState<Category[]>(demoCategories);
   const [products, setProducts] = useState<Product[]>(demoProducts);
   const [isLoading, setIsLoading] = useState(true);
+  const [promotionDismissed, setPromotionDismissed] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -51,8 +53,17 @@ export function HomePage() {
   }, []);
 
   const [mainBanner] = banners;
-  const featuredProducts = products.filter((product) => product.featured).slice(0, 4);
-  const recentProducts = products.slice(0, 4);
+  const featuredProducts = products
+    .filter((product) => product.featured)
+    .sort(
+      (a, b) =>
+        (a.homeDisplayOrder ?? 0) - (b.homeDisplayOrder ?? 0) ||
+        b.createdAt.localeCompare(a.createdAt)
+    )
+    .slice(0, 4);
+  const promotionProduct = featuredProducts.find(
+    (product) => product.promotionalPrice
+  );
 
   return (
     <>
@@ -137,7 +148,6 @@ export function HomePage() {
       </section>
 
       <ProductSection title="Produtos em destaque" products={featuredProducts} />
-      <ProductSection title="Produtos recentes" products={recentProducts} />
 
       <section className="border-y border-border bg-surface">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 md:grid-cols-3">
@@ -155,6 +165,50 @@ export function HomePage() {
           />
         </div>
       </section>
+
+      {promotionProduct && !promotionDismissed && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/55 px-4">
+          <section className="relative grid w-full max-w-md gap-4 rounded-md border border-border bg-surface p-5 shadow-xl">
+            <button
+              aria-label="Fechar promocao"
+              className="absolute right-3 top-3 inline-grid size-9 place-items-center rounded-md border border-border text-text-light hover:text-secondary"
+              onClick={() => setPromotionDismissed(true)}
+              type="button"
+            >
+              <X aria-hidden="true" size={17} />
+            </button>
+            <p className="w-fit rounded bg-primary px-3 py-1 text-xs font-bold uppercase text-secondary">
+              Promocao
+            </p>
+            <div className="grid gap-3 sm:grid-cols-[7rem_1fr]">
+              <img
+                alt={promotionProduct.name}
+                className="aspect-square w-full rounded-md bg-background object-cover"
+                src={
+                  promotionProduct.images.find((image) => image.isMain)?.url ??
+                  promotionProduct.images[0]?.url ??
+                  '/demo/products/camiseta-classica.svg'
+                }
+              />
+              <div>
+                <h2 className="pr-8 text-xl font-black text-secondary">
+                  {promotionProduct.name}
+                </h2>
+                <p className="mt-2 text-sm text-text-light">
+                  Produto selecionado em destaque na loja.
+                </p>
+              </div>
+            </div>
+            <Link
+              className="flex h-11 items-center justify-center rounded-md bg-primary px-5 text-sm font-black text-secondary hover:bg-primary-hover"
+              onClick={() => setPromotionDismissed(true)}
+              to={`/produto/${promotionProduct.slug}`}
+            >
+              Ver promocao
+            </Link>
+          </section>
+        </div>
+      )}
     </>
   );
 }

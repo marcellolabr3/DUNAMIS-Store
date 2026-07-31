@@ -32,6 +32,7 @@ export const adminProductInputSchema = z.object({
   promotionalPrice: moneyInCents.optional().nullable(),
   active: z.coerce.boolean().default(true),
   featured: z.coerce.boolean().default(false),
+  homeDisplayOrder: z.coerce.number().int().min(0).max(9999).default(0),
   trackStock: z.coerce.boolean().default(true),
   images: z.array(adminProductImageSchema).max(8).default([]),
   variants: z.array(adminProductVariantSchema).min(1).max(40)
