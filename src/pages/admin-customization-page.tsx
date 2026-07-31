@@ -395,6 +395,9 @@ export function AdminCustomizationPage() {
               }
               value={settings.storeDescription}
             />
+            <span className="text-xs font-semibold text-text-light">
+              Este texto aparece na pagina inicial, no catalogo e no rodape.
+            </span>
           </Field>
 
           {uploadingStoreAsset && (

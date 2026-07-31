@@ -9,12 +9,17 @@ import {
   demoProducts
 } from '../services/demo-catalog-data';
 import { getPublicHome } from '../services/public-catalog-service';
+import {
+  type PublicStoreSettings,
+  getPublicSettings
+} from '../services/public-settings-service';
 import type { Banner, Category, Product } from '../types/catalog';
 
 export function HomePage() {
   const [banners, setBanners] = useState<Banner[]>(demoBanners);
   const [categories, setCategories] = useState<Category[]>(demoCategories);
   const [products, setProducts] = useState<Product[]>(demoProducts);
+  const [settings, setSettings] = useState<PublicStoreSettings>();
   const [isLoading, setIsLoading] = useState(true);
   const [promotionDismissed, setPromotionDismissed] = useState(false);
 
@@ -23,7 +28,10 @@ export function HomePage() {
 
     async function loadHome() {
       try {
-        const data = await getPublicHome();
+        const [data, loadedSettings] = await Promise.all([
+          getPublicHome(),
+          getPublicSettings()
+        ]);
 
         if (!active) {
           return;
@@ -32,6 +40,7 @@ export function HomePage() {
         setBanners(data.banners);
         setCategories(data.categories);
         setProducts(data.products);
+        setSettings(loadedSettings);
       } catch {
         if (active) {
           setBanners([]);
@@ -75,11 +84,11 @@ export function HomePage() {
             </p>
             <div className="max-w-2xl space-y-4">
               <h1 className="text-4xl font-black text-secondary sm:text-5xl">
-                DUNAMIS STORE
+                {settings?.storeName || 'DUNAMIS STORE'}
               </h1>
               <p className="text-lg leading-8 text-text-light">
-                Produtos da igreja com catalogo simples, retirada local e
-                pagamento inicial por Pix manual.
+                {settings?.storeDescription ||
+                  'Produtos da igreja com catalogo simples, retirada local e pagamento inicial por Pix manual.'}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -153,11 +162,17 @@ export function HomePage() {
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 md:grid-cols-3">
           <InfoBlock
             title="Conheca a loja"
-            text="A DUNAMIS STORE centraliza produtos da igreja em uma experiencia simples para celular e desktop."
+            text={
+              settings?.storeDescription ||
+              'A DUNAMIS STORE centraliza produtos da igreja em uma experiencia simples para celular e desktop.'
+            }
           />
           <InfoBlock
             title="Retirada"
-            text="A retirada inicial e feita na igreja, conforme as instrucoes exibidas no pedido."
+            text={
+              settings?.pickupInstructions ||
+              'A retirada inicial e feita na igreja, conforme as instrucoes exibidas no pedido.'
+            }
           />
           <InfoBlock
             title="Pagamento"

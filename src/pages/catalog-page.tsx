@@ -4,6 +4,10 @@ import { Link, useHistory, useLocation } from 'react-router-dom';
 import { ProductCard } from '../components/product-card';
 import { getCatalogData } from '../services/catalog-service';
 import { getPublicCatalog } from '../services/public-catalog-service';
+import {
+  type PublicStoreSettings,
+  getPublicSettings
+} from '../services/public-settings-service';
 import type { CatalogSort, Category, Product } from '../types/catalog';
 
 export function CatalogPage() {
@@ -20,6 +24,7 @@ export function CatalogPage() {
   });
   const [categories, setCategories] = useState<Category[]>(initialCatalog.categories);
   const [products, setProducts] = useState<Product[]>(initialCatalog.products);
+  const [settings, setSettings] = useState<PublicStoreSettings>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -31,11 +36,14 @@ export function CatalogPage() {
       setError('');
 
       try {
-        const data = await getPublicCatalog({
-          category: selectedCategory || undefined,
-          query,
-          sort
-        });
+        const [data, loadedSettings] = await Promise.all([
+          getPublicCatalog({
+            category: selectedCategory || undefined,
+            query,
+            sort
+          }),
+          getPublicSettings()
+        ]);
 
         if (!active) {
           return;
@@ -43,6 +51,7 @@ export function CatalogPage() {
 
         setCategories(data.categories);
         setProducts(data.products);
+        setSettings(loadedSettings);
       } catch {
         if (active) {
           setError('Nao foi possivel carregar o catalogo.');
@@ -109,10 +118,11 @@ export function CatalogPage() {
             Catalogo
           </p>
           <h1 className="mt-2 text-3xl font-black text-secondary">
-            Produtos DUNAMIS STORE
+            Produtos {settings?.storeName || 'DUNAMIS STORE'}
           </h1>
           <p className="mt-2 text-text-light">
-            Produtos ficticios para visualizar a loja antes do cadastro real.
+            {settings?.storeDescription ||
+              'Produtos da igreja com catalogo simples e retirada local.'}
           </p>
         </div>
         <form className="flex gap-2" onSubmit={handleSearch}>
