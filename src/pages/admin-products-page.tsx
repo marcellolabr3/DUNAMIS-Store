@@ -46,6 +46,8 @@ const emptyVariant: AdminProductVariant = {
   stockQuantity: 0,
   active: true
 };
+const standardSizes = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
+const standardColors = ['Preta', 'Branca', 'Amarela', 'Azul', 'Vermelha'];
 
 export function AdminProductsPage() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
@@ -458,6 +460,10 @@ function ProductForm({
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(['P', 'M', 'G']);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [customColor, setCustomColor] = useState('');
+  const [generatedStock, setGeneratedStock] = useState(10);
 
   function updateField<K extends keyof DraftProduct>(
     key: K,
@@ -484,6 +490,59 @@ function ProductForm({
       ...draft,
       variants: draft.variants.filter((_, itemIndex) => itemIndex !== index)
     });
+  }
+
+  function toggleSize(size: string) {
+    setSelectedSizes((current) =>
+      current.includes(size)
+        ? current.filter((item) => item !== size)
+        : [...current, size]
+    );
+  }
+
+  function toggleColor(color: string) {
+    setSelectedColors((current) =>
+      current.includes(color)
+        ? current.filter((item) => item !== color)
+        : [...current, color]
+    );
+  }
+
+  function addCustomColor() {
+    const color = customColor.trim();
+
+    if (!color || selectedColors.includes(color)) {
+      return;
+    }
+
+    setSelectedColors([...selectedColors, color]);
+    setCustomColor('');
+  }
+
+  function generateVariants() {
+    const sizes = selectedSizes.length > 0 ? selectedSizes : [''];
+    const colors = selectedColors.length > 0 ? selectedColors : [''];
+    const baseSku = draft.sku.trim() || slugify(draft.name) || 'produto';
+    const variants = sizes.flatMap((size) =>
+      colors.map((color) => {
+        const name = [size, color].filter(Boolean).join(' / ') || 'Padrao';
+
+        return {
+          name,
+          sku: [baseSku, size, color]
+            .filter(Boolean)
+            .map((part) => slugify(part).toUpperCase())
+            .join('-'),
+          size,
+          color,
+          priceAdjustment: 0,
+          stockQuantity: Math.max(0, Number(generatedStock)),
+          active: true
+        };
+      })
+    );
+
+    updateField('variants', variants);
   }
 
   async function handleImageUpload(files?: FileList | null) {
@@ -689,6 +748,79 @@ function ProductForm({
             <Plus aria-hidden="true" size={16} />
             Adicionar
           </button>
+        </div>
+        <div className="space-y-3 rounded-md border border-border bg-background p-3">
+          <div>
+            <p className="text-sm font-bold text-secondary">Gerar por tamanho</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {standardSizes.map((size) => (
+                <button
+                  className={`rounded-md border px-3 py-2 text-sm font-bold ${
+                    selectedSizes.includes(size)
+                      ? 'border-primary bg-primary/20 text-secondary'
+                      : 'border-border bg-surface text-text-light'
+                  }`}
+                  key={size}
+                  onClick={() => toggleSize(size)}
+                  type="button"
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-secondary">Cores disponiveis</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {standardColors.map((color) => (
+                <button
+                  className={`rounded-md border px-3 py-2 text-sm font-bold ${
+                    selectedColors.includes(color)
+                      ? 'border-primary bg-primary/20 text-secondary'
+                      : 'border-border bg-surface text-text-light'
+                  }`}
+                  key={color}
+                  onClick={() => toggleColor(color)}
+                  type="button"
+                >
+                  {color}
+                </button>
+              ))}
+            </div>
+            <div className="mt-2 flex gap-2">
+              <input
+                className="input"
+                onChange={(event) => setCustomColor(event.target.value)}
+                placeholder="Outra cor"
+                value={customColor}
+              />
+              <button
+                className="shrink-0 rounded-md border border-border px-3 text-sm font-bold text-secondary hover:border-primary"
+                onClick={addCustomColor}
+                type="button"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+            <Field label="Estoque inicial por variacao">
+              <input
+                className="input"
+                min="0"
+                onChange={(event) => setGeneratedStock(Number(event.target.value))}
+                type="number"
+                value={generatedStock}
+              />
+            </Field>
+            <button
+              className="self-end rounded-md bg-primary px-3 py-2 text-sm font-bold text-secondary hover:bg-primary-hover"
+              onClick={generateVariants}
+              type="button"
+            >
+              Gerar variacoes
+            </button>
+          </div>
         </div>
         {draft.variants.map((variant, index) => (
           <div className="rounded-md border border-border p-3" key={variant.id ?? index}>
@@ -1018,4 +1150,13 @@ function cleanDraft(draft: DraftProduct): AdminProductInput {
       stockQuantity: Number(variant.stockQuantity)
     }))
   };
+}
+
+function slugify(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }

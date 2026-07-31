@@ -29,6 +29,8 @@ export function ProductPage() {
   );
   const [isLoading, setIsLoading] = useState(!fallbackProduct);
   const [selectedVariantId, setSelectedVariantId] = useState<string>();
+  const [selectedSize, setSelectedSize] = useState<string>();
+  const [selectedColor, setSelectedColor] = useState<string>();
   const [selectedImageUrl, setSelectedImageUrl] = useState<string>();
   const [quantity, setQuantity] = useState(1);
 
@@ -43,6 +45,8 @@ export function ProductPage() {
       );
       setIsLoading(!nextFallbackProduct);
       setSelectedVariantId(undefined);
+      setSelectedSize(undefined);
+      setSelectedColor(undefined);
       setSelectedImageUrl(undefined);
       setQuantity(1);
 
@@ -120,8 +124,21 @@ export function ProductPage() {
     selectedImageUrl ?? mainImage?.url ?? currentProduct.images[0]?.url;
   const stock = getProductStock(currentProduct);
   const displayPrice = currentProduct.promotionalPrice ?? currentProduct.price;
+  const activeVariants = currentProduct.variants.filter(
+    (variant) => variant.stockQuantity > 0
+  );
+  const sizes = uniqueValues(currentProduct.variants.map((variant) => variant.size));
+  const colors = uniqueValues(currentProduct.variants.map((variant) => variant.color));
+  const resolvedSize = selectedSize ?? sizes[0];
+  const resolvedColor = selectedColor ?? colors[0];
   const selectedVariant =
     currentProduct.variants.find((variant) => variant.id === selectedVariantId) ??
+    activeVariants.find(
+      (variant) =>
+        (!sizes.length || variant.size === resolvedSize) &&
+        (!colors.length || variant.color === resolvedColor)
+    ) ??
+    activeVariants[0] ??
     currentProduct.variants[0];
   const selectedLineId = selectedVariant
     ? `${currentProduct.id}:${selectedVariant.id}`
@@ -212,28 +229,59 @@ export function ProductPage() {
 
           <div className="grid gap-3">
             <h2 className="text-lg font-bold text-secondary">Variacoes</h2>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {currentProduct.variants.map((variant) => (
-                <button
-                  className={`rounded-md border bg-surface p-3 text-left transition ${
-                    selectedVariant?.id === variant.id
-                      ? 'border-primary ring-2 ring-primary/30'
-                      : 'border-border hover:border-primary'
-                  }`}
-                  key={variant.id}
-                  onClick={() => {
-                    setSelectedVariantId(variant.id);
-                    setQuantity(1);
-                  }}
-                  type="button"
-                >
-                  <p className="font-bold text-secondary">{variant.name}</p>
-                  <p className="text-sm text-text-light">
-                    {variant.stockQuantity} em estoque
-                  </p>
-                </button>
-              ))}
-            </div>
+            {sizes.length > 0 && (
+              <OptionGroup
+                label="Tamanho"
+                options={sizes}
+                selectedValue={resolvedSize}
+                onSelect={(value) => {
+                  setSelectedSize(value);
+                  setSelectedVariantId(undefined);
+                  setQuantity(1);
+                }}
+              />
+            )}
+            {colors.length > 0 && (
+              <OptionGroup
+                label="Cor"
+                options={colors}
+                selectedValue={resolvedColor}
+                onSelect={(value) => {
+                  setSelectedColor(value);
+                  setSelectedVariantId(undefined);
+                  setQuantity(1);
+                }}
+              />
+            )}
+            {sizes.length === 0 && colors.length === 0 && (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {currentProduct.variants.map((variant) => (
+                  <button
+                    className={`rounded-md border bg-surface p-3 text-left transition ${
+                      selectedVariant?.id === variant.id
+                        ? 'border-primary ring-2 ring-primary/30'
+                        : 'border-border hover:border-primary'
+                    }`}
+                    key={variant.id}
+                    onClick={() => {
+                      setSelectedVariantId(variant.id);
+                      setQuantity(1);
+                    }}
+                    type="button"
+                  >
+                    <p className="font-bold text-secondary">{variant.name}</p>
+                    <p className="text-sm text-text-light">
+                      {variant.stockQuantity} em estoque
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
+            <p className="text-sm font-semibold text-text-light">
+              {selectedVariant
+                ? `${selectedVariant.stockQuantity} em estoque`
+                : 'Selecione uma variacao disponivel.'}
+            </p>
           </div>
 
           <div className="grid gap-3 rounded-md border border-border bg-surface p-4">
@@ -284,5 +332,45 @@ export function ProductPage() {
 
       <ProductSection title="Produtos relacionados" products={relatedProducts} />
     </>
+  );
+}
+
+function uniqueValues(values: Array<string | undefined>) {
+  return Array.from(
+    new Set(values.map((value) => value?.trim()).filter(Boolean) as string[])
+  );
+}
+
+function OptionGroup({
+  label,
+  onSelect,
+  options,
+  selectedValue
+}: {
+  label: string;
+  onSelect: (value: string) => void;
+  options: string[];
+  selectedValue?: string;
+}) {
+  return (
+    <div className="grid gap-2">
+      <p className="text-sm font-bold text-secondary">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <button
+            className={`min-h-10 rounded-md border px-4 text-sm font-bold ${
+              selectedValue === option
+                ? 'border-primary bg-primary/20 text-secondary'
+                : 'border-border bg-surface text-text-light hover:border-primary'
+            }`}
+            key={option}
+            onClick={() => onSelect(option)}
+            type="button"
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

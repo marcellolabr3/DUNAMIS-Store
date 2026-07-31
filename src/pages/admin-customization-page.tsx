@@ -32,6 +32,14 @@ const emptyBanner: Omit<AdminBanner, 'id'> = {
   backgroundColor: '#FFFFFF',
   textColor: '#171717'
 };
+type SettingsTab = 'identity' | 'texts' | 'payments' | 'receiving';
+
+const settingsTabs: Array<{ id: SettingsTab; label: string }> = [
+  { id: 'identity', label: 'Identidade' },
+  { id: 'texts', label: 'Textos' },
+  { id: 'payments', label: 'Pix e contatos' },
+  { id: 'receiving', label: 'Recebimento' }
+];
 
 export function AdminCustomizationPage() {
   const location = useLocation();
@@ -46,6 +54,8 @@ export function AdminCustomizationPage() {
   >();
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [activeSettingsTab, setActiveSettingsTab] =
+    useState<SettingsTab>('identity');
   const showBanners = location.pathname.includes('/banners');
   const showSettings = !showBanners;
 
@@ -302,21 +312,33 @@ export function AdminCustomizationPage() {
         }
       >
         {showSettings && (
-        <form
-          className="space-y-5 rounded-md border border-border bg-surface p-4"
-          onSubmit={handleSettingsSubmit}
-        >
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="font-bold text-secondary">Configuracoes da loja</h3>
-            <button
-              className="inline-flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-sm font-bold text-white hover:bg-black"
-              disabled={isSaving}
-              type="submit"
-            >
-              <Save aria-hidden="true" size={16} />
-              Salvar
-            </button>
-          </div>
+          <form
+            className="space-y-5 rounded-md border border-border bg-surface p-4"
+            onSubmit={handleSettingsSubmit}
+          >
+            <div className="flex flex-wrap gap-2 border-b border-border pb-4">
+              {settingsTabs.map((tab) => (
+                <button
+                  className={`rounded-md border px-3 py-2 text-sm font-bold ${
+                    activeSettingsTab === tab.id
+                      ? 'border-primary bg-primary/20 text-secondary'
+                      : 'border-border text-text-light hover:border-primary'
+                  }`}
+                  key={tab.id}
+                  onClick={() => setActiveSettingsTab(tab.id)}
+                  type="button"
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {activeSettingsTab === 'identity' && (
+              <>
+                <FormHeader
+                  isSaving={isSaving}
+                  title="Identidade visual"
+                />
 
           <div className="grid gap-3 md:grid-cols-2">
             <Field label="Nome da loja">
@@ -441,6 +463,17 @@ export function AdminCustomizationPage() {
               Este texto aparece na pagina inicial, no catalogo e no rodape.
             </span>
           </Field>
+          {uploadingStoreAsset && (
+            <p className="text-sm font-semibold text-text-light">
+              Enviando {uploadingStoreAsset === 'logo' ? 'logo' : 'favicon'}...
+            </p>
+          )}
+              </>
+            )}
+
+            {activeSettingsTab === 'texts' && (
+              <>
+                <FormHeader isSaving={isSaving} title="Textos das paginas" />
 
           <section className="space-y-4 rounded-md border border-border bg-background p-4">
             <div>
@@ -580,14 +613,14 @@ export function AdminCustomizationPage() {
               </Field>
             </div>
           </section>
+              </>
+            )}
 
-          {uploadingStoreAsset && (
-            <p className="text-sm font-semibold text-text-light">
-              Enviando {uploadingStoreAsset === 'logo' ? 'logo' : 'favicon'}...
-            </p>
-          )}
+            {activeSettingsTab === 'payments' && (
+              <>
+                <FormHeader isSaving={isSaving} title="Pix e contatos" />
 
-          <div className="grid gap-3 md:grid-cols-3">
+                <div className="grid gap-3 md:grid-cols-3">
             <Field label="Chave Pix">
               <input
                 className="input"
@@ -616,8 +649,14 @@ export function AdminCustomizationPage() {
               />
             </Field>
           </div>
+              </>
+            )}
 
-          <div className="grid gap-3 md:grid-cols-2">
+            {activeSettingsTab === 'receiving' && (
+              <>
+                <FormHeader isSaving={isSaving} title="Recebimento" />
+
+                <div className="grid gap-3 md:grid-cols-2">
             <Field label="Instrucao de retirada">
               <textarea
                 className="input min-h-24"
@@ -644,7 +683,7 @@ export function AdminCustomizationPage() {
             </Field>
           </div>
 
-          <div className="grid gap-2 text-sm font-semibold text-secondary md:grid-cols-3">
+                <div className="grid gap-2 text-sm font-semibold text-secondary md:grid-cols-3">
             <Checkbox
               checked={settings.storeActive}
               label="Loja ativa"
@@ -667,7 +706,9 @@ export function AdminCustomizationPage() {
               }
             />
           </div>
-        </form>
+              </>
+            )}
+          </form>
         )}
 
         {showSettings && (
@@ -988,6 +1029,28 @@ function Field({
       {label}
       {children}
     </label>
+  );
+}
+
+function FormHeader({
+  isSaving,
+  title
+}: {
+  isSaving: boolean;
+  title: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <h3 className="font-bold text-secondary">{title}</h3>
+      <button
+        className="inline-flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-sm font-bold text-white hover:bg-black"
+        disabled={isSaving}
+        type="submit"
+      >
+        <Save aria-hidden="true" size={16} />
+        {isSaving ? 'Salvando...' : 'Salvar'}
+      </button>
+    </div>
   );
 }
 
