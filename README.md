@@ -34,6 +34,8 @@ Implementado ate agora:
 - autenticacao administrativa com login, sessao assinada em cookie HttpOnly e logout.
 - administracao de produtos com criacao, edicao, duplicacao, publicacao, estoque,
   variacoes e imagens por URL.
+- administracao de pedidos com filtros, detalhes, comprovantes privados, historico,
+  atualizacao de status e confirmacao manual de pagamento.
 
 ## Funcionalidades Planejadas
 

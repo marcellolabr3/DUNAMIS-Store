@@ -29,7 +29,7 @@ Thumbs.db
 __pycache__/
 
 # Private uploads and local data
-uploads/
-receipts/
+/uploads/
+/receipts/
 *.sqlite
 *.sqlite3

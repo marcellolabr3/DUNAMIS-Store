@@ -5,6 +5,7 @@ import { AdminLayout } from './layouts/admin-layout';
 import { PublicLayout } from './layouts/public-layout';
 import { AdminProductsPage } from './pages/admin-products-page';
 import { AdminOverviewPage } from './pages/admin-overview-page';
+import { AdminOrdersPage } from './pages/admin-orders-page';
 import { AdminLoginPage } from './pages/admin-login-page';
 import { CartPage } from './pages/cart-page';
 import { CatalogPage } from './pages/catalog-page';
@@ -23,6 +24,7 @@ export function App() {
           <AdminLayout>
             <Switch>
               <Route exact path="/admin" component={AdminOverviewPage} />
+              <Route path="/admin/pedidos" component={AdminOrdersPage} />
               <Route path="/admin/produtos" component={AdminProductsPage} />
               <Route component={AdminOverviewPage} />
             </Switch>
