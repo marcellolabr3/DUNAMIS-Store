@@ -42,6 +42,8 @@ Implementado ate agora:
   exportacao CSV autenticada.
 - headers de seguranca, rate limit em login/checkout, Turnstile configuravel e
   auditoria de login administrativo.
+- testes automatizados reforcados para recalculo de pedido, estoque,
+  idempotencia e seguranca.
 
 ## Funcionalidades Planejadas
 
