@@ -140,19 +140,30 @@ function mapSettingsRow(row: StoreSettingsRow): StoreSettings {
     deliveryInstructions: row.delivery_instructions,
     minimumOrderValue: row.minimum_order_value,
     storeActive: row.store_active === 1,
-    pageContent: parsePageContent(row.page_content)
+    pageContent: parsePageContent(row)
   };
 }
 
-function parsePageContent(value: string): StoreSettings['pageContent'] {
+function parsePageContent(row: StoreSettingsRow): StoreSettings['pageContent'] {
+  const legacyFallback = {
+    ...defaultStoreSettings.pageContent,
+    homeTitle: row.store_name,
+    homeDescription: row.store_description,
+    catalogTitle: `Produtos ${row.store_name}`,
+    catalogDescription: row.store_description,
+    infoText: row.store_description
+  };
+
   try {
-    const parsed = JSON.parse(value || '{}') as Partial<StoreSettings['pageContent']>;
+    const parsed = JSON.parse(row.page_content || '{}') as Partial<
+      StoreSettings['pageContent']
+    >;
 
     return {
-      ...defaultStoreSettings.pageContent,
+      ...legacyFallback,
       ...parsed
     };
   } catch {
-    return defaultStoreSettings.pageContent;
+    return legacyFallback;
   }
 }
