@@ -12,8 +12,10 @@ import {
   ShieldCheck,
   Users
 } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 
+import { useAdminAuth } from '../hooks/use-admin-auth';
+import { logoutAdmin } from '../services/admin-auth-service';
 import { SiteLogo } from '../components/site-logo';
 
 interface AdminLayoutProps {
@@ -34,6 +36,15 @@ const adminItems = [
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
+  const history = useHistory();
+  const { admin, setAdmin } = useAdminAuth();
+
+  async function handleLogout() {
+    await logoutAdmin();
+    setAdmin(undefined);
+    history.push('/admin/login');
+  }
+
   return (
     <div className="min-h-screen bg-admin text-text lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="border-b border-border bg-surface lg:min-h-screen lg:border-b-0 lg:border-r">
@@ -72,13 +83,25 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
       <main className="min-w-0">
         <div className="border-b border-border bg-surface px-4 py-5">
-          <div className="mx-auto max-w-6xl">
-            <p className="text-xs font-semibold uppercase text-primary-hover">
-              Painel administrativo
-            </p>
-            <h1 className="mt-1 text-2xl font-bold text-secondary">
-              DUNAMIS STORE
-            </h1>
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase text-primary-hover">
+                Painel administrativo
+              </p>
+              <h1 className="mt-1 text-2xl font-bold text-secondary">
+                DUNAMIS STORE
+              </h1>
+              {admin && (
+                <p className="mt-1 text-sm text-text-light">{admin.email}</p>
+              )}
+            </div>
+            <button
+              className="rounded-md border border-border px-4 py-2 text-sm font-bold text-secondary hover:border-primary"
+              onClick={handleLogout}
+              type="button"
+            >
+              Sair
+            </button>
           </div>
         </div>
         <div className="mx-auto max-w-6xl px-4 py-6">{children}</div>

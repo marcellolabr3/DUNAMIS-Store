@@ -31,6 +31,7 @@ Implementado ate agora:
 - upload privado de comprovante com validacao de arquivo e status `RECEIPT_SUBMITTED`.
 - consulta publica de pedido por numero e codigo, com historico e dados limitados.
 - consulta por token seguro no link de acompanhamento.
+- autenticacao administrativa com login, sessao assinada em cookie HttpOnly e logout.
 
 ## Funcionalidades Planejadas
 
@@ -136,6 +137,28 @@ Depois abra a URL exibida pelo Vite no terminal, normalmente:
 http://localhost:5173
 ```
 
+Para preparar o banco local e carregar os dados de demonstracao:
+
+```bash
+npm run db:migrate
+npm run seed:demo
+```
+
+O painel administrativo local fica em:
+
+```text
+http://localhost:5173/admin/login
+```
+
+Credenciais de desenvolvimento:
+
+```text
+E-mail: admin@dunamisstore.local
+Senha: Dunamis@123
+```
+
+Troque estas credenciais antes de qualquer ambiente real.
+
 ## Como Validar
 
 Execute os comandos abaixo antes de commits e entregas:
@@ -218,7 +241,9 @@ Nunca versione `.env` nem valores reais de secrets.
 
 ## Banco de Dados
 
-O banco sera Cloudflare D1. As migrations versionadas ficarao em `migrations/`.
+O banco usa Cloudflare D1. As migrations versionadas ficam em `migrations/`.
+Em desenvolvimento, `npm run db:migrate` cria a estrutura e tambem adiciona o
+administrador de demonstracao.
 
 Comandos planejados:
 

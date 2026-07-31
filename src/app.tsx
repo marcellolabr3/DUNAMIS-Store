@@ -1,8 +1,10 @@
 import { Route, Switch } from 'react-router-dom';
 
+import { AdminProtectedRoute } from './components/admin-protected-route';
 import { AdminLayout } from './layouts/admin-layout';
 import { PublicLayout } from './layouts/public-layout';
 import { AdminOverviewPage } from './pages/admin-overview-page';
+import { AdminLoginPage } from './pages/admin-login-page';
 import { CartPage } from './pages/cart-page';
 import { CatalogPage } from './pages/catalog-page';
 import { CheckoutPage } from './pages/checkout-page';
@@ -14,13 +16,16 @@ import { ProductPage } from './pages/product-page';
 export function App() {
   return (
     <Switch>
+      <Route path="/admin/login" component={AdminLoginPage} />
       <Route path="/admin">
-        <AdminLayout>
-          <Switch>
-            <Route exact path="/admin" component={AdminOverviewPage} />
-            <Route component={AdminOverviewPage} />
-          </Switch>
-        </AdminLayout>
+        <AdminProtectedRoute>
+          <AdminLayout>
+            <Switch>
+              <Route exact path="/admin" component={AdminOverviewPage} />
+              <Route component={AdminOverviewPage} />
+            </Switch>
+          </AdminLayout>
+        </AdminProtectedRoute>
       </Route>
       <Route>
         <PublicLayout>

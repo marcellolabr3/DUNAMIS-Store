@@ -2,13 +2,16 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import { App } from '../src/app';
+import { AdminAuthProvider } from '../src/hooks/admin-auth-provider';
 import { CartProvider } from '../src/hooks/cart-provider';
 
 function renderApp(initialEntries = ['/']) {
   return render(
     <MemoryRouter initialEntries={initialEntries}>
       <CartProvider>
-        <App />
+        <AdminAuthProvider>
+          <App />
+        </AdminAuthProvider>
       </CartProvider>
     </MemoryRouter>
   );
@@ -27,14 +30,11 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders the admin layout route', () => {
-    renderApp(['/admin']);
+  it('renders the admin login route', () => {
+    renderApp(['/admin/login']);
 
     expect(
-      screen.getByRole('navigation', { name: 'Menu administrativo' })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: 'Visao geral' })
+      screen.getByRole('heading', { name: 'Entrar na DUNAMIS STORE' })
     ).toBeInTheDocument();
   });
 
