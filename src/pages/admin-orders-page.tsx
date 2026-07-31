@@ -82,6 +82,17 @@ export function AdminOrdersPage() {
     }),
     [orders]
   );
+  const attentionOrders = useMemo(
+    () =>
+      orders.filter((order) =>
+        ['PENDING_PAYMENT', 'RECEIPT_SUBMITTED'].includes(order.status)
+      ),
+    [orders]
+  );
+  const paidOrders = useMemo(
+    () => orders.filter((order) => order.status === 'PAID'),
+    [orders]
+  );
 
   async function reloadOrders() {
     const data = await getAdminOrders({ query, status, dateFrom, dateTo });
@@ -268,65 +279,35 @@ export function AdminOrdersPage() {
             />
           </div>
 
-          <div className="overflow-hidden rounded-md border border-border bg-surface">
-            {isLoading ? (
-              <p className="p-6 text-sm text-text-light">Carregando pedidos...</p>
-            ) : orders.length === 0 ? (
-              <p className="p-6 text-sm text-text-light">
-                Nenhum pedido encontrado.
-              </p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-border text-left text-sm">
-                  <thead className="bg-background text-xs uppercase text-text-light">
-                    <tr>
-                      <th className="px-4 py-3">Pedido</th>
-                      <th className="px-4 py-3">Cliente</th>
-                      <th className="px-4 py-3">Status</th>
-                      <th className="px-4 py-3">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {orders.map((order) => (
-                      <tr
-                        className={
-                          selectedOrder?.id === order.id ? 'bg-primary/10' : ''
-                        }
-                        key={order.id}
-                      >
-                        <td className="px-4 py-3">
-                          <button
-                            className="font-bold text-secondary hover:text-primary-hover"
-                            onClick={() => void selectOrder(order.id)}
-                            type="button"
-                          >
-                            {order.orderNumber}
-                          </button>
-                          <p className="mt-1 text-xs text-text-light">
-                            {formatDate(order.createdAt)}
-                          </p>
-                        </td>
-                        <td className="px-4 py-3">
-                          <p className="font-semibold text-secondary">
-                            {order.customerName}
-                          </p>
-                          <p className="text-xs text-text-light">
-                            {order.customerWhatsapp}
-                          </p>
-                        </td>
-                        <td className="px-4 py-3">
-                          <StatusBadge label={order.statusLabel} status={order.status} />
-                        </td>
-                        <td className="px-4 py-3 font-semibold text-secondary">
-                          {formatMoney(order.total)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+          {status ? (
+            <OrderTable
+              emptyText="Nenhum pedido encontrado."
+              isLoading={isLoading}
+              onSelect={selectOrder}
+              orders={orders}
+              selectedOrderId={selectedOrder?.id}
+              title="Resultado do filtro"
+            />
+          ) : (
+            <>
+              <OrderTable
+                emptyText="Nenhum pedido aguardando conferencia."
+                isLoading={isLoading}
+                onSelect={selectOrder}
+                orders={attentionOrders}
+                selectedOrderId={selectedOrder?.id}
+                title="Pedidos que precisam de atencao"
+              />
+              <OrderTable
+                emptyText="Nenhum pagamento confirmado."
+                isLoading={isLoading}
+                onSelect={selectOrder}
+                orders={paidOrders}
+                selectedOrderId={selectedOrder?.id}
+                title="Pagamento confirmado"
+              />
+            </>
+          )}
         </div>
 
         {selectedOrder ? (
@@ -345,6 +326,83 @@ export function AdminOrdersPage() {
         )}
       </div>
     </section>
+  );
+}
+
+function OrderTable({
+  emptyText,
+  isLoading,
+  onSelect,
+  orders,
+  selectedOrderId,
+  title
+}: {
+  emptyText: string;
+  isLoading: boolean;
+  onSelect: (id: string) => Promise<void>;
+  orders: AdminOrderSummary[];
+  selectedOrderId?: string;
+  title: string;
+}) {
+  return (
+    <div className="overflow-hidden rounded-md border border-border bg-surface">
+      <div className="border-b border-border bg-background px-4 py-3">
+        <h3 className="font-bold text-secondary">{title}</h3>
+      </div>
+      {isLoading ? (
+        <p className="p-6 text-sm text-text-light">Carregando pedidos...</p>
+      ) : orders.length === 0 ? (
+        <p className="p-6 text-sm text-text-light">{emptyText}</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-border text-left text-sm">
+            <thead className="bg-background text-xs uppercase text-text-light">
+              <tr>
+                <th className="px-4 py-3">Pedido</th>
+                <th className="px-4 py-3">Cliente</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Total</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {orders.map((order) => (
+                <tr
+                  className={selectedOrderId === order.id ? 'bg-primary/10' : ''}
+                  key={order.id}
+                >
+                  <td className="px-4 py-3">
+                    <button
+                      className="font-bold text-secondary hover:text-primary-hover"
+                      onClick={() => void onSelect(order.id)}
+                      type="button"
+                    >
+                      {order.orderNumber}
+                    </button>
+                    <p className="mt-1 text-xs text-text-light">
+                      {formatDate(order.createdAt)}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <p className="font-semibold text-secondary">
+                      {order.customerName}
+                    </p>
+                    <p className="text-xs text-text-light">
+                      {order.customerWhatsapp}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge label={order.statusLabel} status={order.status} />
+                  </td>
+                  <td className="px-4 py-3 font-semibold text-secondary">
+                    {formatMoney(order.total)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }
 
