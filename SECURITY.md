@@ -3,19 +3,37 @@
 Nao versione arquivos `.env`, secrets, comprovantes, dados reais ou chaves de
 producao. Vulnerabilidades devem ser tratadas antes de deploy em producao.
 
-Comprovantes enviados por clientes devem ficar em bucket R2 privado. O sistema
-valida extensao, MIME type e tamanho antes do armazenamento.
+## Autenticacao
 
-Administradores usam senha com hash PBKDF2 e sessao assinada em cookie
-`HttpOnly`, `Secure` e `SameSite=Lax`. O segredo de assinatura deve ser definido
-por ambiente em `SESSION_SECRET` e nunca deve ser commitado.
+Administradores usam senha com hash PBKDF2. Sessoes sao assinadas e enviadas em
+cookie `HttpOnly`, `Secure` e `SameSite=Lax`.
 
-As credenciais de demonstracao existem apenas para desenvolvimento local e devem
+Credenciais de demonstracao existem apenas para desenvolvimento local e devem
 ser substituidas antes de preview publico ou producao.
 
-Login administrativo e criacao de pedidos usam rate limit persistido no D1.
-Cloudflare Turnstile e verificado quando `TURNSTILE_SECRET_KEY` esta configurada;
-em desenvolvimento local, sem secret, a verificacao e ignorada.
+## Protecoes Implementadas
 
-As Pages Functions aplicam headers de seguranca, incluindo CSP, `nosniff`,
-`DENY` para frame e politica restritiva de permissoes.
+- Validacao de entrada com Zod no servidor.
+- Queries parametrizadas para D1.
+- Recalculo de preco e estoque no servidor.
+- Idempotencia na criacao de pedido.
+- Rate limit persistido no D1 para login e checkout.
+- Cloudflare Turnstile quando `TURNSTILE_SECRET_KEY` esta configurada.
+- Headers de seguranca e CSP via Pages Functions middleware.
+- Upload de comprovante com extensao, MIME type e tamanho validados.
+- Comprovantes em R2 privado.
+- Auditoria inicial para login administrativo.
+
+## Turnstile
+
+Configure:
+
+- `TURNSTILE_SECRET_KEY` no ambiente das Functions.
+- `VITE_TURNSTILE_SITE_KEY` no build do front-end.
+
+Sem secret, a verificacao e ignorada para facilitar desenvolvimento local.
+
+## Relato de Vulnerabilidade
+
+Registre a vulnerabilidade em canal privado do projeto. Nao abra issue publica
+com dados sensiveis, credenciais ou comprovantes reais.

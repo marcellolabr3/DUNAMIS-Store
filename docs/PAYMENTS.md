@@ -2,37 +2,43 @@
 
 A primeira forma de pagamento da DUNAMIS STORE e Pix manual.
 
-## Pix Manual
+## Fluxo Pix Manual
 
-O checkout cria o pedido no D1 antes de exibir o pagamento. Depois disso a
-camada de pagamentos gera:
+1. Cliente revisa o checkout.
+2. API cria o pedido no D1.
+3. Servidor recalcula precos e estoque.
+4. `ManualPixProvider` gera payload Pix e QR Code.
+5. Pagamento e salvo com `provider = manual_pix`.
+6. Cliente envia comprovante.
+7. Pedido fica `RECEIPT_SUBMITTED`.
+8. Administrador confirma, coloca em analise ou rejeita manualmente.
 
-- payload Pix Copia e Cola;
-- QR Code em Data URL;
-- referencia baseada no numero publico do pedido;
-- expiracao conforme `orderExpirationMinutes`;
-- registro `payments.provider = manual_pix`.
-
-O envio de comprovante e a confirmacao manual do pagamento ficam para as etapas
-seguintes. O sistema nao marca o pedido como pago automaticamente.
-
-## Comprovante
-
-O cliente pode enviar comprovante apos a geracao do Pix. O endpoint aceita
-somente JPG, JPEG, PNG e PDF, com limite de 5 MB. O arquivo e salvo no R2 privado
-com nome aleatorio, sem usar o nome original como caminho.
-
-Ao receber o arquivo, o pedido muda para `RECEIPT_SUBMITTED` e o pagamento fica
-com status `RECEIPT_SUBMITTED`. A confirmacao `PAID` continua dependendo de
-acao manual no painel administrativo.
+O envio de comprovante nunca marca o pedido como `PAID` automaticamente.
 
 ## Camada de Pagamentos
 
-Os providers ficam em `functions/services/payments`.
+Arquivos:
 
-- `payment-provider.ts`: interface comum.
-- `manual-pix-provider.ts`: provider atual.
-- `payment-service.ts`: fachada para uso por pedidos.
+- `functions/services/payments/payment-provider.ts`
+- `functions/services/payments/manual-pix-provider.ts`
+- `functions/services/payments/payment-service.ts`
+- `functions/services/payments/payment-types.ts`
 
-Essa separacao permite adicionar Stone, Asaas, Efi, Mercado Pago, PagBank ou
-outro gateway futuramente sem misturar regras de pedido com regras de pagamento.
+Essa camada evita misturar regras de pedido com regras de provedor.
+
+## Limites Atuais
+
+- Sem webhook.
+- Sem conciliacao bancaria automatica.
+- Sem cartao de credito.
+- Sem Pix dinamico com expiracao bancaria real.
+
+## Futuras Integracoes
+
+Para adicionar Stone, Asaas, Efi, Mercado Pago, PagBank ou outro gateway:
+
+1. Crie um provider que implemente `PaymentProvider`.
+2. Mantenha status e metadados no registro `payments`.
+3. Adicione webhook autenticado em rota propria.
+4. Registre alteracoes no historico do pedido.
+5. Nunca confirme pagamento sem validacao do provedor.

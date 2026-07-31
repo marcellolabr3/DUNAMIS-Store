@@ -1,30 +1,67 @@
 # Arquitetura
 
+DUNAMIS STORE e um e-commerce de vendedor unico para produtos da igreja. A
+arquitetura separa front-end React, Cloudflare Pages Functions, D1 e R2.
+
 ## Fluxo do Cliente
 
 Catalogo -> Produto -> Carrinho -> Checkout -> Pix -> Comprovante ->
 Acompanhamento.
 
-## Consulta de Pedido
+O cliente compra sem conta. O carrinho fica no navegador, mas pedido, precos,
+estoque e Pix sao recalculados no servidor.
 
-Pedidos podem ser acompanhados publicamente por numero + codigo de consulta ou
-por token seguro no link. A resposta publica mostra apenas dados necessarios:
-status, itens, totais, recebimento e historico resumido, sem observacoes internas
-ou dados administrativos.
+## Front-end
+
+- React + TypeScript + Vite.
+- Tailwind CSS com tokens de tema em `src/styles/index.css`.
+- React Router para loja publica e painel administrativo.
+- Services em `src/services` encapsulam chamadas HTTP.
+- Tipos em `src/types` evitam contratos soltos entre telas.
+
+## Pages Functions
+
+As APIs ficam em `functions/api`. Repositories acessam D1 com queries
+parametrizadas, services concentram regras de negocio e schemas Zod validam
+entrada.
+
+Rotas publicas principais:
+
+- `/api/home`
+- `/api/catalog`
+- `/api/product/[slug]`
+- `/api/orders`
+- `/api/orders/track`
+- `/api/orders/[publicToken]/receipt`
+- `/api/health`
+
+Rotas administrativas ficam em `/api/admin` e exigem sessao assinada.
+
+## D1
+
+D1 armazena catalogo, clientes, pedidos, pagamentos, historico, configuracoes,
+auditoria e rate limits. Valores monetarios ficam em centavos.
+
+## R2
+
+R2 armazena comprovantes privados. O cliente envia o arquivo, mas somente o
+painel autenticado acessa o download.
+
+## Pagamentos
+
+A camada de pagamentos fica em `functions/services/payments`. O provider atual e
+`ManualPixProvider`, que gera Pix Copia e Cola e QR Code. Gateways futuros devem
+implementar a mesma interface sem alterar regras centrais de pedido.
 
 ## Administracao
 
-As rotas administrativas ficam abaixo de `/api/admin` e exigem sessao assinada
-por cookie. A gestao de produtos usa service e repository proprios para manter
-as regras de catalogo separadas da interface do painel.
+O painel inclui login, produtos, pedidos, banners, configuracoes e relatorios.
+Confirmacao de pagamento e sempre manual. Comprovante enviado apenas move o
+pedido para conferencia.
 
-A gestao de pedidos tambem fica isolada em service/repository. A confirmacao de
-pagamento e sempre uma acao manual do administrador; comprovante enviado apenas
-altera o pedido para conferencia.
+## Seguranca
 
-Configuracoes da loja sao mantidas em `store_settings` e expostas publicamente
-sem dados sensiveis de Pix. O painel administrativo consome a versao completa
-por rota autenticada.
-
-Relatorios administrativos consultam D1 por rotas autenticadas e alimentam tanto
-a visao geral quanto a pagina de relatorios, incluindo exportacao CSV de pedidos.
+Entradas sao validadas com Zod, queries usam bind parametrizado, sessoes usam
+cookie `HttpOnly`, `Secure` e `SameSite=Lax`, uploads sao validados, headers de
+seguranca sao aplicados por middleware e Turnstile/rate limit protegem login e
+checkout quando configurados.
