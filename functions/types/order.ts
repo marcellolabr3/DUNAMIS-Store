@@ -1,4 +1,5 @@
 export type DeliveryMethod = 'pickup' | 'delivery';
+export type CheckoutPaymentMethod = 'manual_pix' | 'manual_card';
 
 export interface OrderCartItem {
   productId: string;
@@ -14,6 +15,7 @@ export interface CreateOrderInput {
     notes?: string;
   };
   deliveryMethod: DeliveryMethod;
+  paymentMethod: CheckoutPaymentMethod;
   address?: {
     postalCode: string;
     street: string;
@@ -35,11 +37,11 @@ export interface CreateOrderResult {
   total: number;
   status: string;
   payment: {
-    method: 'pix';
-    provider: 'manual_pix';
-    pixPayload: string;
-    qrCodeDataUrl: string;
-    expiresAt: string;
+    method: 'pix' | 'card';
+    provider: 'manual_pix' | 'manual_card';
+    pixPayload?: string;
+    qrCodeDataUrl?: string;
+    expiresAt?: string;
   };
 }
 

@@ -1,4 +1,11 @@
-import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from 'react';
+import {
+  type FormEvent,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import {
   Copy,
   Eye,
@@ -7,6 +14,7 @@ import {
   Save,
   Search,
   Trash2,
+  Upload,
   X
 } from 'lucide-react';
 
@@ -16,7 +24,8 @@ import {
   duplicateAdminProduct,
   getAdminProducts,
   setAdminProductActive,
-  updateAdminProduct
+  updateAdminProduct,
+  uploadAdminProductImage
 } from '../services/admin-product-service';
 import type {
   AdminCategoryOption,
@@ -48,6 +57,7 @@ export function AdminProductsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const formPanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -100,9 +110,12 @@ export function AdminProductsPage() {
   );
 
   function startCreate() {
-    setMessage('');
+    setMessage('Preencha o formulario para cadastrar um novo produto.');
     setError('');
     setDraft(makeEmptyDraft(categories[0]?.id ?? ''));
+    window.setTimeout(() => {
+      formPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
   }
 
   function startEdit(product: AdminProduct) {
@@ -124,6 +137,9 @@ export function AdminProductsPage() {
       images: product.images,
       variants: product.variants
     });
+    window.setTimeout(() => {
+      formPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
   }
 
   async function reload() {
@@ -407,13 +423,17 @@ export function AdminProductsPage() {
           </div>
         </div>
 
-        <ProductForm
-          categories={categories}
-          draft={draft}
-          isSaving={isSaving}
-          onChange={setDraft}
-          onSubmit={handleSubmit}
-        />
+        <div ref={formPanelRef}>
+          <ProductForm
+            categories={categories}
+            draft={draft}
+            isSaving={isSaving}
+            onChange={setDraft}
+            onError={setError}
+            onMessage={setMessage}
+            onSubmit={handleSubmit}
+          />
+        </div>
       </div>
     </section>
   );
@@ -424,14 +444,20 @@ function ProductForm({
   draft,
   isSaving,
   onChange,
+  onError,
+  onMessage,
   onSubmit
 }: {
   categories: AdminCategoryOption[];
   draft: DraftProduct;
   isSaving: boolean;
   onChange: (draft: DraftProduct) => void;
+  onError: (message: string) => void;
+  onMessage: (message: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
   function updateField<K extends keyof DraftProduct>(
     key: K,
     value: DraftProduct[K]
@@ -457,6 +483,37 @@ function ProductForm({
       ...draft,
       variants: draft.variants.filter((_, itemIndex) => itemIndex !== index)
     });
+  }
+
+  async function handleImageUpload(file?: File) {
+    if (!file) {
+      return;
+    }
+
+    setIsUploadingImage(true);
+    onError('');
+    onMessage('');
+
+    try {
+      const result = await uploadAdminProductImage(file);
+      updateField('images', [
+        {
+          url: result.image.url,
+          altText: draft.name,
+          displayOrder: 0,
+          isMain: true
+        }
+      ]);
+      onMessage('Imagem enviada. Salve o produto para gravar a alteracao.');
+    } catch (uploadError) {
+      onError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : 'Nao foi possivel enviar a imagem.'
+      );
+    } finally {
+      setIsUploadingImage(false);
+    }
   }
 
   return (
@@ -663,28 +720,52 @@ function ProductForm({
         ))}
       </div>
 
-      <Field label="URL da imagem principal">
-        <input
-          className="input"
-          onChange={(event) =>
-            updateField(
-              'images',
-              event.target.value
-                ? [
-                    {
-                      url: event.target.value,
-                      altText: draft.name,
-                      displayOrder: 0,
-                      isMain: true
-                    }
-                  ]
-                : []
-            )
-          }
-          placeholder="/assets/demo-produto.svg"
-          value={draft.images[0]?.url ?? ''}
-        />
-      </Field>
+      <div className="grid gap-3">
+        <Field label="Imagem principal do produto">
+          <input
+            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+            className="block w-full text-sm text-text-light file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-bold file:text-secondary"
+            disabled={isUploadingImage}
+            onChange={(event) => void handleImageUpload(event.target.files?.[0])}
+            type="file"
+          />
+        </Field>
+        <Field label="URL da imagem principal">
+          <input
+            className="input"
+            onChange={(event) =>
+              updateField(
+                'images',
+                event.target.value
+                  ? [
+                      {
+                        url: event.target.value,
+                        altText: draft.name,
+                        displayOrder: 0,
+                        isMain: true
+                      }
+                    ]
+                  : []
+              )
+            }
+            placeholder="/assets/demo-produto.svg"
+            value={draft.images[0]?.url ?? ''}
+          />
+        </Field>
+        {draft.images[0]?.url && (
+          <img
+            alt={draft.images[0].altText || draft.name || 'Imagem do produto'}
+            className="aspect-square w-28 rounded-md border border-border object-cover"
+            src={draft.images[0].url}
+          />
+        )}
+        <p className="flex items-center gap-2 text-xs font-semibold text-text-light">
+          <Upload aria-hidden="true" size={14} />
+          {isUploadingImage
+            ? 'Enviando imagem...'
+            : 'Aceita JPG, PNG ou WebP de ate 4 MB.'}
+        </p>
+      </div>
     </form>
   );
 }

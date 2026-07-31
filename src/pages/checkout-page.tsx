@@ -15,6 +15,7 @@ import type {
   CheckoutCustomer,
   CreatedOrder,
   DeliveryMethod,
+  CheckoutPaymentMethod,
   UploadedReceipt
 } from '../types/checkout';
 import { createIdempotencyKey } from '../utils/idempotency';
@@ -44,6 +45,8 @@ export function CheckoutPage() {
   const [step, setStep] = useState<CheckoutStep>(1);
   const [customer, setCustomer] = useState<CheckoutCustomer>(initialCustomer);
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('pickup');
+  const [paymentMethod, setPaymentMethod] =
+    useState<CheckoutPaymentMethod>('manual_pix');
   const [address, setAddress] = useState<CheckoutAddress>(initialAddress);
   const [idempotencyKey] = useState(() => createIdempotencyKey());
   const [createdOrder, setCreatedOrder] = useState<CreatedOrder>();
@@ -143,6 +146,7 @@ export function CheckoutPage() {
       const order = await createCheckoutOrder({
         customer,
         deliveryMethod,
+        paymentMethod,
         address: deliveryMethod === 'delivery' ? address : undefined,
         items,
         idempotencyKey,
@@ -160,7 +164,11 @@ export function CheckoutPage() {
     }
   }
 
-  async function copyPixPayload(payload: string) {
+  async function copyPixPayload(payload?: string) {
+    if (!payload) {
+      return;
+    }
+
     await navigator.clipboard.writeText(payload);
     setPixCopied(true);
   }
@@ -368,6 +376,22 @@ export function CheckoutPage() {
                   ))}
                 </div>
               </ReviewBlock>
+              <ReviewBlock title="Pagamento">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <PaymentMethodButton
+                    active={paymentMethod === 'manual_pix'}
+                    description="Gera QR Code e Pix Copia e Cola. O comprovante deve ser enviado em seguida."
+                    label="Pix"
+                    onClick={() => setPaymentMethod('manual_pix')}
+                  />
+                  <PaymentMethodButton
+                    active={paymentMethod === 'manual_card'}
+                    description="Use quando o pagamento por cartao for combinado com a igreja e envie o comprovante."
+                    label="Cartao"
+                    onClick={() => setPaymentMethod('manual_card')}
+                  />
+                </div>
+              </ReviewBlock>
               <TurnstileField onVerify={setTurnstileToken} />
               {error && <p className="text-sm font-semibold text-danger">{error}</p>}
               <div className="flex gap-3">
@@ -405,34 +429,69 @@ export function CheckoutPage() {
                 Total: <strong>{formatMoney(createdOrder.total)}</strong>
               </p>
               <div className="grid gap-5 lg:grid-cols-[20rem_1fr]">
-                <div className="rounded-md border border-border bg-background p-4">
-                  <img
-                    alt={`QR Code Pix do pedido ${createdOrder.orderNumber}`}
-                    className="mx-auto aspect-square w-full max-w-72 rounded bg-white"
-                    src={createdOrder.payment.qrCodeDataUrl}
-                  />
-                </div>
-                <div className="grid content-start gap-4">
-                  <div>
-                    <h3 className="font-black text-secondary">Pix Copia e Cola</h3>
-                    <textarea
-                      className="mt-2 min-h-32 w-full rounded-md border border-border bg-background p-3 text-xs text-text-light outline-none"
-                      readOnly
-                      value={createdOrder.payment.pixPayload}
+                {createdOrder.payment.method === 'pix' ? (
+                  <div className="rounded-md border border-border bg-background p-4">
+                    <img
+                      alt={`QR Code Pix do pedido ${createdOrder.orderNumber}`}
+                      className="mx-auto aspect-square w-full max-w-72 rounded bg-white"
+                      src={createdOrder.payment.qrCodeDataUrl ?? ''}
                     />
                   </div>
-                  <button
-                    className="h-12 rounded-md bg-primary px-5 text-sm font-black text-secondary hover:bg-primary-hover"
-                    onClick={() => copyPixPayload(createdOrder.payment.pixPayload)}
-                    type="button"
-                  >
-                    {pixCopied ? 'Codigo copiado' : 'Copiar codigo Pix'}
-                  </button>
+                ) : (
+                  <div className="rounded-md border border-border bg-background p-4">
+                    <p className="text-sm font-bold uppercase text-primary-hover">
+                      Cartao
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-text-light">
+                      Pagamento por cartao selecionado. A loja ainda usa
+                      conferencia manual, entao envie o comprovante do pagamento
+                      feito pelo celular ou computador.
+                    </p>
+                  </div>
+                )}
+                <div className="grid content-start gap-4">
+                  {createdOrder.payment.method === 'pix' && (
+                    <>
+                      <div>
+                        <h3 className="font-black text-secondary">
+                          Pix Copia e Cola
+                        </h3>
+                        <textarea
+                          className="mt-2 min-h-32 w-full rounded-md border border-border bg-background p-3 text-xs text-text-light outline-none"
+                          readOnly
+                          value={createdOrder.payment.pixPayload ?? ''}
+                        />
+                      </div>
+                      <button
+                        className="h-12 rounded-md bg-primary px-5 text-sm font-black text-secondary hover:bg-primary-hover"
+                        onClick={() =>
+                          copyPixPayload(createdOrder.payment.pixPayload)
+                        }
+                        type="button"
+                      >
+                        {pixCopied ? 'Codigo copiado' : 'Copiar codigo Pix'}
+                      </button>
+                    </>
+                  )}
                   <p className="rounded-md border border-border bg-background p-4 text-sm leading-6 text-text-light">
-                    Pague ate{' '}
-                    <strong>{formatPaymentExpiration(createdOrder.payment.expiresAt)}</strong>.
-                    Depois envie o comprovante. O pedido permanece aguardando
-                    conferencia manual.
+                    {createdOrder.payment.method === 'pix' &&
+                    createdOrder.payment.expiresAt ? (
+                      <>
+                        Pague ate{' '}
+                        <strong>
+                          {formatPaymentExpiration(
+                            createdOrder.payment.expiresAt
+                          )}
+                        </strong>
+                        . Depois envie o comprovante.
+                      </>
+                    ) : (
+                      <>
+                        Envie o comprovante do pagamento por cartao para que o
+                        pedido entre em analise.
+                      </>
+                    )}{' '}
+                    O pedido permanece aguardando conferencia manual.
                   </p>
                   <div className="grid gap-3 rounded-md border border-border bg-surface p-4">
                     <h3 className="font-black text-secondary">
@@ -584,6 +643,31 @@ function ReviewBlock({ title, children }: ReviewBlockProps) {
       <h3 className="font-black text-secondary">{title}</h3>
       <div className="mt-2 text-sm leading-6 text-text-light">{children}</div>
     </section>
+  );
+}
+
+function PaymentMethodButton({
+  active,
+  description,
+  label,
+  onClick
+}: {
+  active: boolean;
+  description: string;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={`rounded-md border p-4 text-left ${
+        active ? 'border-primary ring-2 ring-primary/30' : 'border-border'
+      }`}
+      onClick={onClick}
+      type="button"
+    >
+      <p className="font-black text-secondary">{label}</p>
+      <p className="mt-1 text-sm text-text-light">{description}</p>
+    </button>
   );
 }
 

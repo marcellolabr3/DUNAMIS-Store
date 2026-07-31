@@ -8,6 +8,7 @@ export const createOrderSchema = z.object({
     notes: z.string().trim().max(1000).optional().or(z.literal(''))
   }),
   deliveryMethod: z.enum(['pickup', 'delivery']),
+  paymentMethod: z.enum(['manual_pix', 'manual_card']).default('manual_pix'),
   address: z
     .object({
       postalCode: z.string().trim().min(8).max(12),

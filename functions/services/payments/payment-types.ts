@@ -1,4 +1,6 @@
 export type PaymentStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'EXPIRED';
+export type PaymentProviderName = 'manual_pix' | 'manual_card';
+export type PaymentMethod = 'pix' | 'card';
 
 export interface PaymentOrder {
   orderNumber: string;
@@ -6,12 +8,12 @@ export interface PaymentOrder {
 }
 
 export interface PaymentResult {
-  provider: 'manual_pix';
+  provider: PaymentProviderName;
   providerReference: string;
-  method: 'pix';
+  method: PaymentMethod;
   status: PaymentStatus;
   amount: number;
-  pixPayload: string;
-  qrCodeDataUrl: string;
-  expiresAt: string;
+  pixPayload?: string;
+  qrCodeDataUrl?: string;
+  expiresAt?: string;
 }

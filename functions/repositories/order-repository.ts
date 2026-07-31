@@ -64,10 +64,10 @@ export class OrderRepository {
         public_token: string;
         total: number;
         status: string;
-        pix_payload: string;
-        pix_expiration_at: string;
-        provider: 'manual_pix';
-        method: 'pix';
+        pix_payload: string | null;
+        pix_expiration_at: string | null;
+        provider: 'manual_pix' | 'manual_card';
+        method: 'pix' | 'card';
         metadata: string;
       }>();
 
@@ -86,9 +86,9 @@ export class OrderRepository {
       payment: {
         method: row.method,
         provider: row.provider,
-        pixPayload: row.pix_payload,
-        qrCodeDataUrl: metadata.qrCodeDataUrl ?? '',
-        expiresAt: row.pix_expiration_at
+        pixPayload: row.pix_payload ?? undefined,
+        qrCodeDataUrl: metadata.qrCodeDataUrl,
+        expiresAt: row.pix_expiration_at ?? undefined
       }
     };
   }
@@ -207,15 +207,15 @@ export class OrderRepository {
           input.addressId || null,
           'PENDING_PAYMENT',
           'PENDING',
-          'manual_pix',
+          input.payment.provider,
           input.input.deliveryMethod,
           input.subtotal,
           input.deliveryAmount,
           input.discountAmount,
           input.total,
           input.input.customer.notes || null,
-          input.payment.pixPayload,
-          input.payment.expiresAt
+          input.payment.pixPayload ?? null,
+          input.payment.expiresAt ?? null
         ),
       this.db
         .prepare(
@@ -246,8 +246,8 @@ export class OrderRepository {
           input.payment.amount,
           JSON.stringify({
             idempotencyKey: input.input.idempotencyKey,
-            pixExpiresAt: input.payment.expiresAt,
-            qrCodeDataUrl: input.payment.qrCodeDataUrl
+            pixExpiresAt: input.payment.expiresAt ?? null,
+            qrCodeDataUrl: input.payment.qrCodeDataUrl ?? null
           })
         ),
       this.db

@@ -1,5 +1,6 @@
 import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
 import { Image, Plus, Save, Trash2 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 import {
   createAdminBanner,
@@ -22,6 +23,7 @@ const emptyBanner: Omit<AdminBanner, 'id'> = {
 };
 
 export function AdminCustomizationPage() {
+  const location = useLocation();
   const [settings, setSettings] = useState<StoreSettings>();
   const [banners, setBanners] = useState<AdminBanner[]>([]);
   const [bannerDraft, setBannerDraft] = useState<AdminBanner | undefined>();
@@ -29,6 +31,8 @@ export function AdminCustomizationPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const showBanners = location.pathname.includes('/banners');
+  const showSettings = !showBanners;
 
   useEffect(() => {
     let active = true;
@@ -171,9 +175,13 @@ export function AdminCustomizationPage() {
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-secondary">Personalizacao</h2>
+        <h2 className="text-xl font-bold text-secondary">
+          {showBanners ? 'Banners' : 'Configuracoes'}
+        </h2>
         <p className="mt-2 text-sm text-text-light">
-          Ajuste identidade, contatos, Pix, recebimento e banners da loja.
+          {showBanners
+            ? 'Cadastre e ordene os banners exibidos na pagina inicial.'
+            : 'Ajuste identidade, contatos, Pix e formas de recebimento.'}
         </p>
       </div>
 
@@ -189,7 +197,14 @@ export function AdminCustomizationPage() {
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_26rem]">
+      <div
+        className={
+          showSettings
+            ? 'grid gap-6 xl:grid-cols-[1fr_26rem]'
+            : 'grid gap-6 xl:grid-cols-[18rem_1fr]'
+        }
+      >
+        {showSettings && (
         <form
           className="space-y-5 rounded-md border border-border bg-surface p-4"
           onSubmit={handleSettingsSubmit}
@@ -375,7 +390,9 @@ export function AdminCustomizationPage() {
             />
           </div>
         </form>
+        )}
 
+        {showSettings && (
         <aside className="space-y-4">
           <div className="rounded-md border border-border bg-surface p-4">
             <h3 className="font-bold text-secondary">Pre-visualizacao</h3>
@@ -393,9 +410,34 @@ export function AdminCustomizationPage() {
               </p>
             </div>
           </div>
+        </aside>
+        )}
 
+        {showBanners && (
+          <aside className="rounded-md border border-border bg-surface p-4">
+            <h3 className="font-bold text-secondary">Banners cadastrados</h3>
+            <div className="mt-4 grid gap-2">
+              {banners.map((banner) => (
+                <button
+                  className={`rounded-md border px-3 py-2 text-left text-sm font-semibold ${
+                    bannerDraft?.id === banner.id
+                      ? 'border-primary bg-primary/20 text-secondary'
+                      : 'border-border text-text-light'
+                  }`}
+                  key={banner.id}
+                  onClick={() => setBannerDraft(banner)}
+                  type="button"
+                >
+                  {banner.title}
+                </button>
+              ))}
+            </div>
+          </aside>
+        )}
+
+        {showBanners && (
           <form
-            className="space-y-3 rounded-md border border-border bg-surface p-4"
+            className="space-y-4 rounded-md border border-border bg-surface p-4"
             onSubmit={handleBannerSubmit}
           >
             <div className="flex items-center justify-between gap-3">
@@ -409,23 +451,6 @@ export function AdminCustomizationPage() {
                 Novo
               </button>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {banners.map((banner) => (
-                <button
-                  className={`rounded-md border px-3 py-1 text-sm font-semibold ${
-                    bannerDraft?.id === banner.id
-                      ? 'border-primary bg-primary/20 text-secondary'
-                      : 'border-border text-text-light'
-                  }`}
-                  key={banner.id}
-                  onClick={() => setBannerDraft(banner)}
-                  type="button"
-                >
-                  {banner.title}
-                </button>
-              ))}
-            </div>
-
             {bannerDraft ? (
               <>
                 <Field label="Titulo">
@@ -526,7 +551,7 @@ export function AdminCustomizationPage() {
               </p>
             )}
           </form>
-        </aside>
+        )}
       </div>
     </section>
   );

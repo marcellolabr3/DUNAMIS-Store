@@ -1,6 +1,7 @@
 import type { CartItem } from './cart';
 
 export type DeliveryMethod = 'pickup' | 'delivery';
+export type CheckoutPaymentMethod = 'manual_pix' | 'manual_card';
 
 export interface CheckoutCustomer {
   fullName: string;
@@ -22,6 +23,7 @@ export interface CheckoutAddress {
 export interface CheckoutDraft {
   customer: CheckoutCustomer;
   deliveryMethod: DeliveryMethod;
+  paymentMethod: CheckoutPaymentMethod;
   address?: CheckoutAddress;
   items: CartItem[];
   idempotencyKey: string;
@@ -35,11 +37,11 @@ export interface CreatedOrder {
   total: number;
   status: string;
   payment: {
-    method: 'pix';
-    provider: 'manual_pix';
-    pixPayload: string;
-    qrCodeDataUrl: string;
-    expiresAt: string;
+    method: 'pix' | 'card';
+    provider: 'manual_pix' | 'manual_card';
+    pixPayload?: string;
+    qrCodeDataUrl?: string;
+    expiresAt?: string;
   };
 }
 

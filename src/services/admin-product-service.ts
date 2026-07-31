@@ -83,6 +83,28 @@ export async function deleteAdminProduct(id: string) {
   }
 }
 
+export async function uploadAdminProductImage(file: File) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await fetch('/api/admin/product-images', {
+    method: 'POST',
+    credentials: 'include',
+    body: formData
+  });
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, 'Nao foi possivel enviar a imagem.'));
+  }
+
+  return (await response.json()) as {
+    image: {
+      url: string;
+      fileName: string;
+    };
+  };
+}
+
 async function sendProduct(
   url: string,
   method: 'POST' | 'PUT',
@@ -98,8 +120,21 @@ async function sendProduct(
   });
 
   if (!response.ok) {
-    throw new Error('Nao foi possivel salvar o produto.');
+    throw new Error(await getErrorMessage(response, 'Nao foi possivel salvar o produto.'));
   }
 
   return (await response.json()) as { product: AdminProduct };
+}
+
+async function getErrorMessage(response: Response, fallback: string) {
+  try {
+    const payload = (await response.json()) as {
+      error?: string;
+      details?: string;
+    };
+
+    return payload.details || payload.error || fallback;
+  } catch {
+    return fallback;
+  }
 }

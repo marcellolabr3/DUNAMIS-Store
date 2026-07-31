@@ -1,6 +1,7 @@
 import { OrderRepository } from '../repositories/order-repository';
 import { StoreSettingsRepository } from '../repositories/store-settings-repository';
 import { OrderService } from '../services/order-service';
+import { ManualCardProvider } from '../services/payments/manual-card-provider';
 import { ManualPixProvider } from '../services/payments/manual-pix-provider';
 import { PaymentService } from '../services/payments/payment-service';
 import type { Env } from '../types/bindings';
@@ -47,9 +48,13 @@ export async function onRequestPost(context: PagesFunctionContext) {
       throw new Error('Retirada indisponivel no momento.');
     }
 
+    const paymentProvider =
+      body.paymentMethod === 'manual_card'
+        ? new ManualCardProvider()
+        : new ManualPixProvider(settings);
     const service = new OrderService(
       new OrderRepository(context.env.DB),
-      new PaymentService(new ManualPixProvider(settings))
+      new PaymentService(paymentProvider)
     );
     const order = await service.createOrder(body);
 
