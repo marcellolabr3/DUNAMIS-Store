@@ -930,7 +930,7 @@ function ProductForm({
               >
                 <img
                   alt={image.altText || draft.name || 'Imagem do produto'}
-                  className="aspect-square w-full rounded-md bg-background object-cover"
+                  className="aspect-square w-full rounded-md bg-background object-contain"
                   src={image.url}
                 />
                 <div className="min-w-0">

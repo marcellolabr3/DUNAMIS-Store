@@ -19,6 +19,8 @@ interface ProductRouteParams {
   slug: string;
 }
 
+const sizeOrder = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
+
 export function ProductPage() {
   const { slug } = useParams<ProductRouteParams>();
   const { addItem, lastAddedLineId } = useCart();
@@ -173,7 +175,7 @@ export function ProductPage() {
           <div className="aspect-square overflow-hidden rounded bg-background">
             <img
               alt={mainImage?.altText ?? currentProduct.name}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
               src={displayedImageUrl ?? '/demo/products/camiseta-classica.svg'}
             />
           </div>
@@ -192,7 +194,7 @@ export function ProductPage() {
                 >
                   <img
                     alt={image.altText || currentProduct.name}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain"
                     src={image.url}
                   />
                 </button>
@@ -347,9 +349,23 @@ export function ProductPage() {
 }
 
 function uniqueValues(values: Array<string | undefined>) {
-  return Array.from(
+  const unique = Array.from(
     new Set(values.map((value) => value?.trim()).filter(Boolean) as string[])
   );
+
+  return unique.sort((first, second) => {
+    const firstIndex = sizeOrder.indexOf(first.toUpperCase());
+    const secondIndex = sizeOrder.indexOf(second.toUpperCase());
+
+    if (firstIndex !== -1 || secondIndex !== -1) {
+      return (
+        (firstIndex === -1 ? Number.MAX_SAFE_INTEGER : firstIndex) -
+        (secondIndex === -1 ? Number.MAX_SAFE_INTEGER : secondIndex)
+      );
+    }
+
+    return first.localeCompare(second);
+  });
 }
 
 function OptionGroup({
