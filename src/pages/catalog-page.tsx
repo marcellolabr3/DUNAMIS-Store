@@ -115,13 +115,15 @@ export function CatalogPage() {
       <div className="mb-8 grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
         <div>
           <p className="text-sm font-bold uppercase text-primary-hover">
-            Catalogo
+            {settings?.pageContent.catalogEyebrow || 'Catalogo'}
           </p>
           <h1 className="mt-2 text-3xl font-black text-secondary">
-            Produtos {settings?.storeName || 'DUNAMIS STORE'}
+            {settings?.pageContent.catalogTitle ||
+              `Produtos ${settings?.storeName || 'DUNAMIS STORE'}`}
           </h1>
           <p className="mt-2 text-text-light">
-            {settings?.storeDescription ||
+            {settings?.pageContent.catalogDescription ||
+              settings?.storeDescription ||
               'Produtos da igreja com catalogo simples e retirada local.'}
           </p>
         </div>

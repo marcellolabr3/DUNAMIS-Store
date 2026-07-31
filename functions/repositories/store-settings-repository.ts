@@ -29,7 +29,8 @@ export class StoreSettingsRepository {
           pickup_instructions,
           delivery_instructions,
           minimum_order_value,
-          store_active
+          store_active,
+          page_content
         FROM store_settings
         WHERE id = 1`
       )
@@ -62,9 +63,10 @@ export class StoreSettingsRepository {
           delivery_instructions,
           minimum_order_value,
           store_active,
+          page_content,
           updated_at
         ) VALUES (
-          1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP
+          1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP
         )
         ON CONFLICT(id) DO UPDATE SET
           store_name = excluded.store_name,
@@ -86,6 +88,7 @@ export class StoreSettingsRepository {
           delivery_instructions = excluded.delivery_instructions,
           minimum_order_value = excluded.minimum_order_value,
           store_active = excluded.store_active,
+          page_content = excluded.page_content,
           updated_at = CURRENT_TIMESTAMP`
       )
       .bind(
@@ -107,7 +110,8 @@ export class StoreSettingsRepository {
         settings.pickupInstructions,
         settings.deliveryInstructions,
         settings.minimumOrderValue,
-        settings.storeActive ? 1 : 0
+        settings.storeActive ? 1 : 0,
+        JSON.stringify(settings.pageContent)
       )
       .run();
 
@@ -135,6 +139,20 @@ function mapSettingsRow(row: StoreSettingsRow): StoreSettings {
     pickupInstructions: row.pickup_instructions,
     deliveryInstructions: row.delivery_instructions,
     minimumOrderValue: row.minimum_order_value,
-    storeActive: row.store_active === 1
+    storeActive: row.store_active === 1,
+    pageContent: parsePageContent(row.page_content)
   };
+}
+
+function parsePageContent(value: string): StoreSettings['pageContent'] {
+  try {
+    const parsed = JSON.parse(value || '{}') as Partial<StoreSettings['pageContent']>;
+
+    return {
+      ...defaultStoreSettings.pageContent,
+      ...parsed
+    };
+  } catch {
+    return defaultStoreSettings.pageContent;
+  }
 }

@@ -1,6 +1,25 @@
 import { z } from 'zod';
 
+import { defaultStoreSettings } from '../config/default-store-settings';
+
 const hexColorSchema = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
+
+const pageContentSchema = z.object({
+  homeEyebrow: z.string().trim().min(1).max(80),
+  homeTitle: z.string().trim().min(1).max(140),
+  homeDescription: z.string().trim().min(1).max(700),
+  featuredTitle: z.string().trim().min(1).max(120),
+  categoriesTitle: z.string().trim().min(1).max(120),
+  infoTitle: z.string().trim().min(1).max(120),
+  infoText: z.string().trim().min(1).max(700),
+  pickupTitle: z.string().trim().min(1).max(120),
+  pickupText: z.string().trim().min(1).max(700),
+  paymentTitle: z.string().trim().min(1).max(120),
+  paymentText: z.string().trim().min(1).max(700),
+  catalogEyebrow: z.string().trim().min(1).max(80),
+  catalogTitle: z.string().trim().min(1).max(140),
+  catalogDescription: z.string().trim().min(1).max(700)
+});
 
 export const storeSettingsSchema = z.object({
   storeName: z.string().trim().min(1).max(120),
@@ -21,7 +40,10 @@ export const storeSettingsSchema = z.object({
   pickupInstructions: z.string().trim().min(1).max(1000),
   deliveryInstructions: z.string().trim().min(1).max(1000),
   minimumOrderValue: z.number().int().min(0),
-  storeActive: z.boolean()
+  storeActive: z.boolean(),
+  pageContent: pageContentSchema
+    .optional()
+    .default(defaultStoreSettings.pageContent)
 });
 
 export type StoreSettingsInput = z.infer<typeof storeSettingsSchema>;

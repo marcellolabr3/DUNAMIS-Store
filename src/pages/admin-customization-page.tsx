@@ -12,7 +12,11 @@ import {
   updateAdminBanner,
   updateAdminSettings
 } from '../services/admin-customization-service';
-import type { AdminBanner, StoreSettings } from '../types/store-settings';
+import type {
+  AdminBanner,
+  StorePageContent,
+  StoreSettings
+} from '../types/store-settings';
 
 const emptyBanner: Omit<AdminBanner, 'id'> = {
   title: '',
@@ -183,6 +187,23 @@ export function AdminCustomizationPage() {
     } finally {
       setIsSaving(false);
     }
+  }
+
+  function updatePageContent(
+    key: keyof StorePageContent,
+    value: string
+  ) {
+    if (!settings) {
+      return;
+    }
+
+    setSettings({
+      ...settings,
+      pageContent: {
+        ...settings.pageContent,
+        [key]: value
+      }
+    });
   }
 
   async function handleBannerImageUpload(file?: File) {
@@ -409,6 +430,145 @@ export function AdminCustomizationPage() {
               Este texto aparece na pagina inicial, no catalogo e no rodape.
             </span>
           </Field>
+
+          <section className="space-y-4 rounded-md border border-border bg-background p-4">
+            <div>
+              <h3 className="font-bold text-secondary">Textos das paginas</h3>
+              <p className="mt-1 text-sm text-text-light">
+                Edite aqui os titulos e descricoes exibidos na pagina inicial e
+                no catalogo.
+              </p>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <Field label="Home - etiqueta">
+                <input
+                  className="input"
+                  onChange={(event) =>
+                    updatePageContent('homeEyebrow', event.target.value)
+                  }
+                  value={settings.pageContent.homeEyebrow}
+                />
+              </Field>
+              <Field label="Home - titulo principal">
+                <input
+                  className="input"
+                  onChange={(event) =>
+                    updatePageContent('homeTitle', event.target.value)
+                  }
+                  value={settings.pageContent.homeTitle}
+                />
+              </Field>
+              <Field label="Home - descricao">
+                <textarea
+                  className="input min-h-24"
+                  onChange={(event) =>
+                    updatePageContent('homeDescription', event.target.value)
+                  }
+                  value={settings.pageContent.homeDescription}
+                />
+              </Field>
+              <Field label="Titulo dos produtos em destaque">
+                <input
+                  className="input"
+                  onChange={(event) =>
+                    updatePageContent('featuredTitle', event.target.value)
+                  }
+                  value={settings.pageContent.featuredTitle}
+                />
+              </Field>
+              <Field label="Titulo das categorias">
+                <input
+                  className="input"
+                  onChange={(event) =>
+                    updatePageContent('categoriesTitle', event.target.value)
+                  }
+                  value={settings.pageContent.categoriesTitle}
+                />
+              </Field>
+              <Field label="Catalogo - etiqueta">
+                <input
+                  className="input"
+                  onChange={(event) =>
+                    updatePageContent('catalogEyebrow', event.target.value)
+                  }
+                  value={settings.pageContent.catalogEyebrow}
+                />
+              </Field>
+              <Field label="Catalogo - titulo">
+                <input
+                  className="input"
+                  onChange={(event) =>
+                    updatePageContent('catalogTitle', event.target.value)
+                  }
+                  value={settings.pageContent.catalogTitle}
+                />
+              </Field>
+              <Field label="Catalogo - descricao">
+                <textarea
+                  className="input min-h-24"
+                  onChange={(event) =>
+                    updatePageContent('catalogDescription', event.target.value)
+                  }
+                  value={settings.pageContent.catalogDescription}
+                />
+              </Field>
+              <Field label="Bloco informativo - titulo">
+                <input
+                  className="input"
+                  onChange={(event) =>
+                    updatePageContent('infoTitle', event.target.value)
+                  }
+                  value={settings.pageContent.infoTitle}
+                />
+              </Field>
+              <Field label="Bloco informativo - texto">
+                <textarea
+                  className="input min-h-24"
+                  onChange={(event) =>
+                    updatePageContent('infoText', event.target.value)
+                  }
+                  value={settings.pageContent.infoText}
+                />
+              </Field>
+              <Field label="Retirada - titulo">
+                <input
+                  className="input"
+                  onChange={(event) =>
+                    updatePageContent('pickupTitle', event.target.value)
+                  }
+                  value={settings.pageContent.pickupTitle}
+                />
+              </Field>
+              <Field label="Retirada - texto">
+                <textarea
+                  className="input min-h-24"
+                  onChange={(event) =>
+                    updatePageContent('pickupText', event.target.value)
+                  }
+                  value={settings.pageContent.pickupText}
+                />
+              </Field>
+              <Field label="Pagamento - titulo">
+                <input
+                  className="input"
+                  onChange={(event) =>
+                    updatePageContent('paymentTitle', event.target.value)
+                  }
+                  value={settings.pageContent.paymentTitle}
+                />
+              </Field>
+              <Field label="Pagamento - texto">
+                <textarea
+                  className="input min-h-24"
+                  onChange={(event) =>
+                    updatePageContent('paymentText', event.target.value)
+                  }
+                  value={settings.pageContent.paymentText}
+                />
+              </Field>
+            </div>
+          </section>
 
           {uploadingStoreAsset && (
             <p className="text-sm font-semibold text-text-light">

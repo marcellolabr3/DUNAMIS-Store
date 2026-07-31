@@ -18,6 +18,24 @@ export interface StoreSettings {
   deliveryInstructions: string;
   minimumOrderValue: number;
   storeActive: boolean;
+  pageContent: StorePageContent;
+}
+
+export interface StorePageContent {
+  homeEyebrow: string;
+  homeTitle: string;
+  homeDescription: string;
+  featuredTitle: string;
+  categoriesTitle: string;
+  infoTitle: string;
+  infoText: string;
+  pickupTitle: string;
+  pickupText: string;
+  paymentTitle: string;
+  paymentText: string;
+  catalogEyebrow: string;
+  catalogTitle: string;
+  catalogDescription: string;
 }
 
 export interface AdminBanner {

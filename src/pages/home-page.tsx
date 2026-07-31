@@ -93,13 +93,16 @@ export function HomePage() {
           <div className="absolute inset-0 mx-auto grid max-w-6xl content-center px-4 py-10">
             <div className="max-w-2xl space-y-4" style={{ color: mainBanner.textColor || '#FFFFFF' }}>
               <p className="w-fit rounded bg-primary px-3 py-1 text-xs font-bold uppercase text-secondary">
-                Loja virtual da igreja
+                {settings?.pageContent.homeEyebrow || 'Loja virtual da igreja'}
               </p>
               <h1 className="text-4xl font-black sm:text-5xl">
-                {settings?.storeName || 'DUNAMIS STORE'}
+                {settings?.pageContent.homeTitle ||
+                  settings?.storeName ||
+                  'DUNAMIS STORE'}
               </h1>
               <p className="text-lg leading-8">
-                {settings?.storeDescription ||
+                {settings?.pageContent.homeDescription ||
+                  settings?.storeDescription ||
                   'Produtos da igreja com catalogo simples, retirada local e pagamento inicial por Pix manual.'}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -138,14 +141,17 @@ export function HomePage() {
         <div className="mx-auto grid min-h-[66vh] max-w-6xl items-center gap-10 px-4 py-10 md:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-6">
             <p className="w-fit rounded bg-primary px-3 py-1 text-xs font-bold uppercase text-secondary">
-              Loja virtual da igreja
+              {settings?.pageContent.homeEyebrow || 'Loja virtual da igreja'}
             </p>
             <div className="max-w-2xl space-y-4">
               <h1 className="text-4xl font-black text-secondary sm:text-5xl">
-                {settings?.storeName || 'DUNAMIS STORE'}
+                {settings?.pageContent.homeTitle ||
+                  settings?.storeName ||
+                  'DUNAMIS STORE'}
               </h1>
               <p className="text-lg leading-8 text-text-light">
-                {settings?.storeDescription ||
+                {settings?.pageContent.homeDescription ||
+                  settings?.storeDescription ||
                   'Produtos da igreja com catalogo simples, retirada local e pagamento inicial por Pix manual.'}
               </p>
             </div>
@@ -210,15 +216,18 @@ function StorefrontSections({
   promotionDismissed: boolean;
   promotionProduct?: Product;
   setPromotionDismissed: (dismissed: boolean) => void;
-  settings?: { storeDescription: string; pickupInstructions: string };
+  settings?: PublicStoreSettings;
 }) {
   return (
     <>
-      <ProductSection title="Produtos em destaque" products={featuredProducts} />
+      <ProductSection
+        title={settings?.pageContent.featuredTitle || 'Produtos em destaque'}
+        products={featuredProducts}
+      />
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="mb-5">
           <h2 className="text-2xl font-black text-secondary">
-            Categorias em destaque
+            {settings?.pageContent.categoriesTitle || 'Categorias em destaque'}
           </h2>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -248,22 +257,27 @@ function StorefrontSections({
       <section className="border-y border-border bg-surface">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 md:grid-cols-3">
           <InfoBlock
-            title="Conheca a loja"
+            title={settings?.pageContent.infoTitle || 'Conheca a loja'}
             text={
+              settings?.pageContent.infoText ||
               settings?.storeDescription ||
               'A DUNAMIS STORE centraliza produtos da igreja em uma experiencia simples para celular e desktop.'
             }
           />
           <InfoBlock
-            title="Retirada"
+            title={settings?.pageContent.pickupTitle || 'Retirada'}
             text={
+              settings?.pageContent.pickupText ||
               settings?.pickupInstructions ||
               'A retirada inicial e feita na igreja, conforme as instrucoes exibidas no pedido.'
             }
           />
           <InfoBlock
-            title="Pagamento"
-            text="O pagamento inicial usa Pix manual. O comprovante sera conferido por um administrador."
+            title={settings?.pageContent.paymentTitle || 'Pagamento'}
+            text={
+              settings?.pageContent.paymentText ||
+              'O pagamento inicial usa Pix manual. O comprovante sera conferido por um administrador.'
+            }
           />
         </div>
       </section>
