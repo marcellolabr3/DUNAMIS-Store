@@ -8,7 +8,7 @@ import { CatalogPage } from './pages/catalog-page';
 import { CheckoutPage } from './pages/checkout-page';
 import { HomePage } from './pages/home-page';
 import { NotFoundPage } from './pages/not-found-page';
-import { PlaceholderPage } from './pages/placeholder-page';
+import { OrderTrackingPage } from './pages/order-tracking-page';
 import { ProductPage } from './pages/product-page';
 
 export function App() {
@@ -28,12 +28,7 @@ export function App() {
             <Route exact path="/" component={HomePage} />
             <Route exact path="/catalogo" component={CatalogPage} />
             <Route path="/produto/:slug" component={ProductPage} />
-            <Route path="/pedido">
-              <PlaceholderPage
-                description="A consulta publica de pedidos sera implementada na etapa correspondente."
-                title="Acompanhar pedido"
-              />
-            </Route>
+            <Route path="/pedido" component={OrderTrackingPage} />
             <Route path="/carrinho" component={CartPage} />
             <Route path="/checkout" component={CheckoutPage} />
             <Route component={NotFoundPage} />

@@ -29,6 +29,8 @@ Implementado ate agora:
 - checkout sem conta com dados do cliente, recebimento, revisao e criacao de pedido via API.
 - Pix manual com payload Copia e Cola, QR Code, valor do pedido e expiracao.
 - upload privado de comprovante com validacao de arquivo e status `RECEIPT_SUBMITTED`.
+- consulta publica de pedido por numero e codigo, com historico e dados limitados.
+- consulta por token seguro no link de acompanhamento.
 
 ## Funcionalidades Planejadas
 
