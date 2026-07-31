@@ -117,6 +117,8 @@ export function HomePage() {
         </div>
       </section>
 
+      <ProductSection title="Produtos em destaque" products={featuredProducts} />
+
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="mb-5">
           <h2 className="text-2xl font-black text-secondary">
@@ -146,8 +148,6 @@ export function HomePage() {
           ))}
         </div>
       </section>
-
-      <ProductSection title="Produtos em destaque" products={featuredProducts} />
 
       <section className="border-y border-border bg-surface">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 md:grid-cols-3">

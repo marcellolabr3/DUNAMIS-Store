@@ -5,11 +5,13 @@ import { AdminLayout } from './layouts/admin-layout';
 import { PublicLayout } from './layouts/public-layout';
 import { AdminCustomizationPage } from './pages/admin-customization-page';
 import { AdminAdminsPage } from './pages/admin-admins-page';
+import { AdminCategoriesPage } from './pages/admin-categories-page';
 import { AdminLogsPage } from './pages/admin-logs-page';
 import { AdminProductsPage } from './pages/admin-products-page';
 import { AdminOverviewPage } from './pages/admin-overview-page';
 import { AdminOrdersPage } from './pages/admin-orders-page';
 import { AdminReportsPage } from './pages/admin-reports-page';
+import { AdminStockPage } from './pages/admin-stock-page';
 import { AdminLoginPage } from './pages/admin-login-page';
 import { CartPage } from './pages/cart-page';
 import { CatalogPage } from './pages/catalog-page';
@@ -30,6 +32,8 @@ export function App() {
               <Route exact path="/admin" component={AdminOverviewPage} />
               <Route path="/admin/pedidos" component={AdminOrdersPage} />
               <Route path="/admin/produtos" component={AdminProductsPage} />
+              <Route path="/admin/categorias" component={AdminCategoriesPage} />
+              <Route path="/admin/estoque" component={AdminStockPage} />
               <Route path="/admin/banners" component={AdminCustomizationPage} />
               <Route
                 path="/admin/configuracoes"
