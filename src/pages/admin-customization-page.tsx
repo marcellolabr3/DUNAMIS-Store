@@ -7,6 +7,7 @@ import {
   deleteAdminBanner,
   getAdminBanners,
   getAdminSettings,
+  uploadAdminBannerImage,
   updateAdminBanner,
   updateAdminSettings
 } from '../services/admin-customization-service';
@@ -29,6 +30,7 @@ export function AdminCustomizationPage() {
   const [bannerDraft, setBannerDraft] = useState<AdminBanner | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingBannerImage, setIsUploadingBannerImage] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const showBanners = location.pathname.includes('/banners');
@@ -165,6 +167,33 @@ export function AdminCustomizationPage() {
       );
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function handleBannerImageUpload(file?: File) {
+    if (!file || !bannerDraft) {
+      return;
+    }
+
+    setIsUploadingBannerImage(true);
+    setMessage('');
+    setError('');
+
+    try {
+      const result = await uploadAdminBannerImage(file);
+      setBannerDraft({
+        ...bannerDraft,
+        imageUrl: result.image.url
+      });
+      setMessage('Imagem enviada. Salve o banner para publicar a alteracao.');
+    } catch (uploadError) {
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : 'Nao foi possivel enviar a imagem.'
+      );
+    } finally {
+      setIsUploadingBannerImage(false);
     }
   }
 
@@ -477,6 +506,29 @@ export function AdminCustomizationPage() {
                     value={bannerDraft.imageUrl}
                   />
                 </Field>
+                <Field label="Carregar imagem do computador">
+                  <input
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                    className="block w-full text-sm text-text-light file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-bold file:text-secondary"
+                    disabled={isUploadingBannerImage}
+                    onChange={(event) =>
+                      void handleBannerImageUpload(event.target.files?.[0])
+                    }
+                    type="file"
+                  />
+                </Field>
+                {isUploadingBannerImage && (
+                  <p className="text-sm font-semibold text-text-light">
+                    Enviando imagem...
+                  </p>
+                )}
+                {bannerDraft.imageUrl && (
+                  <img
+                    alt={bannerDraft.title || 'Pre-visualizacao do banner'}
+                    className="aspect-[16/7] w-full rounded-md border border-border bg-background object-cover"
+                    src={bannerDraft.imageUrl}
+                  />
+                )}
                 <Field label="Descricao">
                   <textarea
                     className="input min-h-20"
