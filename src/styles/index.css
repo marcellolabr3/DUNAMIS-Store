@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #f5c400;
+  --color-primary-hover: #d9ad00;
+  --color-secondary: #111111;
+  --color-background: #f7f7f7;
+  --color-surface: #ffffff;
+  --color-text: #171717;
+  --color-text-light: #666666;
+  --color-border: #e5e5e5;
+  --color-success: #15803d;
+  --color-warning: #d97706;
+  --color-danger: #b91c1c;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
