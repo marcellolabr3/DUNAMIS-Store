@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
 
+import { TurnstileField } from '../components/turnstile-field';
 import { useAdminAuth } from '../hooks/use-admin-auth';
 import { loginAdmin } from '../services/admin-auth-service';
 
@@ -9,6 +10,7 @@ export function AdminLoginPage() {
   const { admin, setAdmin } = useAdminAuth();
   const [email, setEmail] = useState('admin@dunamisstore.local');
   const [password, setPassword] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [error, setError] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -22,7 +24,11 @@ export function AdminLoginPage() {
     setIsSubmitting(true);
 
     try {
-      const authenticatedAdmin = await loginAdmin({ email, password });
+      const authenticatedAdmin = await loginAdmin({
+        email,
+        password,
+        turnstileToken
+      });
       setAdmin(authenticatedAdmin);
       history.push('/admin');
     } catch {
@@ -66,6 +72,7 @@ export function AdminLoginPage() {
             value={password}
           />
         </label>
+        <TurnstileField onVerify={setTurnstileToken} />
         {error && <p className="text-sm font-semibold text-danger">{error}</p>}
         <button
           className="h-12 rounded-md bg-primary px-5 text-sm font-black text-secondary hover:bg-primary-hover disabled:opacity-60"

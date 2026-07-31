@@ -4,3 +4,9 @@ export interface AdminUser {
   email: string;
   role: string;
 }
+
+export interface AdminLoginInput {
+  email: string;
+  password: string;
+  turnstileToken?: string;
+}

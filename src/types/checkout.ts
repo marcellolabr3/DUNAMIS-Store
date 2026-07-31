@@ -25,6 +25,7 @@ export interface CheckoutDraft {
   address?: CheckoutAddress;
   items: CartItem[];
   idempotencyKey: string;
+  turnstileToken?: string;
 }
 
 export interface CreatedOrder {

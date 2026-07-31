@@ -28,7 +28,8 @@ export const createOrderSchema = z.object({
       })
     )
     .min(1),
-  idempotencyKey: z.string().trim().min(16).max(120)
+  idempotencyKey: z.string().trim().min(16).max(120),
+  turnstileToken: z.string().trim().optional()
 });
 
 export type CreateOrderInputSchema = z.infer<typeof createOrderSchema>;

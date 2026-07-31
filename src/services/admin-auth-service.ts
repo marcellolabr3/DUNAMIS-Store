@@ -1,9 +1,6 @@
-import type { AdminUser } from '../types/admin-auth';
+import type { AdminLoginInput, AdminUser } from '../types/admin-auth';
 
-export async function loginAdmin(input: {
-  email: string;
-  password: string;
-}): Promise<AdminUser> {
+export async function loginAdmin(input: AdminLoginInput): Promise<AdminUser> {
   const response = await fetch('/api/admin/auth/login', {
     method: 'POST',
     headers: {

@@ -40,6 +40,8 @@ Implementado ate agora:
   entrega, ativacao da loja e banners.
 - dashboard e relatorios com metricas reais, pedidos recentes, estoque baixo e
   exportacao CSV autenticada.
+- headers de seguranca, rate limit em login/checkout, Turnstile configuravel e
+  auditoria de login administrativo.
 
 ## Funcionalidades Planejadas
 

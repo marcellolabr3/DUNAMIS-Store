@@ -5,6 +5,9 @@ import { ManualPixProvider } from '../services/payments/manual-pix-provider';
 import { PaymentService } from '../services/payments/payment-service';
 import type { Env } from '../types/bindings';
 import { errorResponse, jsonResponse } from '../utils/http';
+import { enforceRateLimit } from '../utils/rate-limit';
+import { getClientIp } from '../utils/security';
+import { verifyTurnstile } from '../utils/turnstile';
 
 interface PagesFunctionContext {
   env: Env;
@@ -13,7 +16,23 @@ interface PagesFunctionContext {
 
 export async function onRequestPost(context: PagesFunctionContext) {
   try {
-    const body = await context.request.json();
+    const body = (await context.request.json()) as Record<string, unknown>;
+    const ipAddress = getClientIp(context.request);
+
+    await enforceRateLimit({
+      db: context.env.DB,
+      scope: 'checkout',
+      identifier: `${ipAddress}:${String(body.idempotencyKey ?? '')}`,
+      limit: 8,
+      windowSeconds: 600
+    });
+    await verifyTurnstile({
+      token:
+        typeof body.turnstileToken === 'string' ? body.turnstileToken : undefined,
+      secret: context.env.TURNSTILE_SECRET_KEY,
+      ipAddress
+    });
+
     const settings = await new StoreSettingsRepository(context.env.DB).get();
     const service = new OrderService(
       new OrderRepository(context.env.DB),

@@ -53,16 +53,30 @@ export class AdminAuthRepository {
   }
 
   async recordSuccessfulLogin(adminId: string) {
-    await this.db
-      .prepare(
-        `UPDATE admins
-        SET failed_login_attempts = 0,
-          locked_until = NULL,
-          last_login_at = CURRENT_TIMESTAMP,
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?`
-      )
-      .bind(adminId)
-      .run();
+    await this.db.batch([
+      this.db
+        .prepare(
+          `UPDATE admins
+          SET failed_login_attempts = 0,
+            locked_until = NULL,
+            last_login_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id = ?`
+        )
+        .bind(adminId),
+      this.db
+        .prepare(
+          `INSERT INTO audit_logs (id, admin_id, action, entity_type, entity_id, metadata)
+          VALUES (?, ?, ?, ?, ?, ?)`
+        )
+        .bind(
+          crypto.randomUUID(),
+          adminId,
+          'admin.login',
+          'admin',
+          adminId,
+          '{}'
+        )
+    ]);
   }
 }

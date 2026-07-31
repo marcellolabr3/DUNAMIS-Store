@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
+import { TurnstileField } from '../components/turnstile-field';
 import { useCart } from '../hooks/use-cart';
 import { createCheckoutOrder } from '../services/checkout-service';
 import { uploadPaymentReceipt } from '../services/receipt-service';
@@ -50,6 +51,7 @@ export function CheckoutPage() {
   const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
   const [error, setError] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState('');
   const customerValid = customer.fullName.trim().length >= 3 && customer.whatsapp.trim().length >= 8;
   const receivingValid =
     deliveryMethod === 'pickup' ||
@@ -101,7 +103,8 @@ export function CheckoutPage() {
         deliveryMethod,
         address: deliveryMethod === 'delivery' ? address : undefined,
         items,
-        idempotencyKey
+        idempotencyKey,
+        turnstileToken
       });
 
       setCreatedOrder(order);
@@ -311,6 +314,7 @@ export function CheckoutPage() {
                   ))}
                 </div>
               </ReviewBlock>
+              <TurnstileField onVerify={setTurnstileToken} />
               {error && <p className="text-sm font-semibold text-danger">{error}</p>}
               <div className="flex gap-3">
                 <button

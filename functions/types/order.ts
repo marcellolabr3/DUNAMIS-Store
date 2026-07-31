@@ -25,6 +25,7 @@ export interface CreateOrderInput {
   };
   items: OrderCartItem[];
   idempotencyKey: string;
+  turnstileToken?: string;
 }
 
 export interface CreateOrderResult {
