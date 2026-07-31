@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="Imagem demonstrativa da categoria Infantil">
+  <rect width="800" height="600" fill="#f7f7f7"/>
+  <rect x="215" y="150" width="370" height="290" rx="8" fill="#f5c400"/>
+  <circle cx="320" cy="270" r="42" fill="#111111"/>
+  <circle cx="480" cy="270" r="42" fill="#111111"/>
+  <path d="M305 355c65 45 125 45 190 0" fill="none" stroke="#111111" stroke-width="18" stroke-linecap="round"/>
+  <text x="400" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#111111">DEMO INFANTIL</text>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-label="Imagem demonstrativa da Caneca Dunamis">
+  <rect width="900" height="900" fill="#f7f7f7"/>
+  <rect x="260" y="260" width="320" height="300" rx="35" fill="#ffffff" stroke="#111111" stroke-width="24"/>
+  <path d="M580 330h70c58 0 58 150 0 150h-70" fill="none" stroke="#111111" stroke-width="24"/>
+  <rect x="345" y="380" width="150" height="54" rx="8" fill="#f5c400"/>
+  <text x="450" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#111111">DEMO PRODUTO</text>
+</svg>

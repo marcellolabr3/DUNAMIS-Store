@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-label="Imagem demonstrativa da Camiseta Dunamis Classica">
+  <rect width="900" height="900" fill="#f7f7f7"/>
+  <path d="M300 170h90l60 65 60-65h90l110 105-78 82-42-38v365H310V319l-42 38-78-82 110-105Z" fill="#111111"/>
+  <rect x="365" y="400" width="170" height="60" rx="8" fill="#f5c400"/>
+  <text x="450" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#111111">DEMO PRODUTO</text>
+</svg>

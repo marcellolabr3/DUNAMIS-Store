@@ -1,1 +1,3 @@
-console.info('Demo seed will be implemented in Etapa 4.');
+import { runSqlFile } from './run-sql-file';
+
+runSqlFile('demo.sql');

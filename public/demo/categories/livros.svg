@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="Imagem demonstrativa da categoria Livros">
+  <rect width="800" height="600" fill="#f7f7f7"/>
+  <rect x="150" y="120" width="220" height="320" rx="8" fill="#111111"/>
+  <rect x="380" y="120" width="220" height="320" rx="8" fill="#f5c400"/>
+  <line x1="400" y1="120" x2="400" y2="440" stroke="#ffffff" stroke-width="8"/>
+  <text x="400" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#111111">DEMO LIVROS</text>
+</svg>

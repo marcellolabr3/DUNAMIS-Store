@@ -37,3 +37,21 @@ npm run db:migrate
 ```
 
 O comando usa Wrangler para aplicar as migrations no D1 local configurado.
+
+## Dados de Demonstracao
+
+Os dados ficticios ficam em `seeds/demo.sql` e podem ser aplicados apos as
+migrations:
+
+```bash
+npm run seed:demo
+```
+
+Para remover somente os registros de demonstracao:
+
+```bash
+npm run seed:clear
+```
+
+Os registros ficticios usam IDs com prefixo `demo-*`, permitindo limpeza sem
+afetar dados reais.

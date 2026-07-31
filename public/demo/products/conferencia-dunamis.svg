@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-label="Imagem demonstrativa da Conferencia Dunamis">
+  <rect width="900" height="900" fill="#f7f7f7"/>
+  <rect x="190" y="220" width="520" height="360" rx="8" fill="#111111"/>
+  <rect x="250" y="280" width="400" height="90" rx="8" fill="#f5c400"/>
+  <text x="450" y="455" text-anchor="middle" font-family="Arial, sans-serif" font-size="58" font-weight="700" fill="#ffffff">EVENTO</text>
+  <text x="450" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#111111">DEMO PRODUTO</text>
+</svg>

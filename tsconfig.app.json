@@ -19,7 +19,8 @@
     "types": [
       "vitest/globals",
       "@testing-library/jest-dom",
-      "@cloudflare/workers-types"
+      "@cloudflare/workers-types",
+      "node"
     ]
   },
   "include": ["src", "tests", "functions"]

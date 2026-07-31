@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-label="Imagem demonstrativa da Pulseira Dunamis">
+  <rect width="900" height="900" fill="#f7f7f7"/>
+  <circle cx="450" cy="410" r="180" fill="none" stroke="#111111" stroke-width="44"/>
+  <circle cx="450" cy="410" r="94" fill="none" stroke="#f5c400" stroke-width="30"/>
+  <text x="450" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#111111">DEMO PRODUTO</text>
+</svg>

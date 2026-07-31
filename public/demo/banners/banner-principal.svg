@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="560" viewBox="0 0 1440 560" role="img" aria-label="Banner demonstrativo principal DUNAMIS STORE">
+  <rect width="1440" height="560" fill="#111111"/>
+  <rect x="80" y="80" width="520" height="120" rx="8" fill="#f5c400"/>
+  <text x="110" y="160" font-family="Arial, sans-serif" font-size="58" font-weight="800" fill="#111111">DUNAMIS STORE</text>
+  <text x="90" y="280" font-family="Arial, sans-serif" font-size="32" fill="#ffffff">Banner demonstrativo editavel</text>
+  <circle cx="1080" cy="280" r="150" fill="#f5c400"/>
+  <text x="1080" y="295" text-anchor="middle" font-family="Arial, sans-serif" font-size="44" font-weight="800" fill="#111111">DEMO</text>
+</svg>

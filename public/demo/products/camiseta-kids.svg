@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-label="Imagem demonstrativa da Camiseta Dunamis Kids">
+  <rect width="900" height="900" fill="#f7f7f7"/>
+  <path d="M320 190h70l60 60 60-60h70l95 92-65 70-35-31v330H325V321l-35 31-65-70 95-92Z" fill="#f5c400" stroke="#111111" stroke-width="18"/>
+  <text x="450" y="455" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="700" fill="#111111">KIDS</text>
+  <text x="450" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#111111">DEMO PRODUTO</text>
+</svg>

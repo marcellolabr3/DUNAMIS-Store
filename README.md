@@ -21,6 +21,9 @@ Implementado ate agora:
 - endpoint de health check em `functions/api/health.ts`;
 - configuracao inicial de ESLint, Prettier, Vitest e Cloudflare Wrangler;
 - testes iniciais com React Testing Library.
+- migrations iniciais do Cloudflare D1;
+- seed de demonstracao com categorias, produtos, variacoes, banners e pedidos;
+- comando para limpeza dos dados ficticios.
 
 ## Funcionalidades Planejadas
 
@@ -179,11 +182,11 @@ Aplica migrations locais no banco D1 configurado.
 
 `npm run seed:demo`
 
-Executa o seed de demonstracao. Sera implementado na etapa de dados ficticios.
+Executa o seed de demonstracao no D1 local. Rode `npm run db:migrate` antes.
 
 `npm run seed:clear`
 
-Remove os dados ficticios. Sera implementado na etapa de dados ficticios.
+Remove os dados ficticios do D1 local usando os prefixos `demo-*`.
 
 `npm run deploy`
 
