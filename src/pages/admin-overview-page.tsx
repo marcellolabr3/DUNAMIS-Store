@@ -1,34 +1,48 @@
-const summaryCards = [
-  { label: 'Aguardando pagamento', value: '0' },
-  { label: 'Comprovantes enviados', value: '0' },
-  { label: 'Pagamentos confirmados', value: '0' },
-  { label: 'Produtos com estoque baixo', value: '0' }
-];
+import { useEffect, useState } from 'react';
+
+import { ReportsContent } from './admin-reports-page';
+import { getAdminReports } from '../services/admin-report-service';
+import type { AdminReportData } from '../types/admin-report';
 
 export function AdminOverviewPage() {
-  return (
-    <section className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-secondary">Visao geral</h2>
-        <p className="mt-2 text-sm text-text-light">
-          Estrutura visual inicial do painel. Os indicadores serao integrados ao
-          banco nas proximas etapas.
-        </p>
-      </div>
+  const [data, setData] = useState<AdminReportData>();
+  const [error, setError] = useState('');
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {summaryCards.map((card) => (
-          <article
-            className="rounded-md border border-border bg-surface p-4 shadow-sm"
-            key={card.label}
-          >
-            <p className="text-sm font-medium text-text-light">{card.label}</p>
-            <p className="mt-3 text-3xl font-bold text-secondary">
-              {card.value}
-            </p>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
+  useEffect(() => {
+    let active = true;
+
+    async function load() {
+      try {
+        const reports = await getAdminReports();
+
+        if (active) {
+          setData(reports);
+        }
+      } catch (loadError) {
+        if (active) {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : 'Nao foi possivel carregar o painel.'
+          );
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (error) {
+    return <p className="text-sm font-semibold text-danger">{error}</p>;
+  }
+
+  if (!data) {
+    return <p className="text-sm text-text-light">Carregando painel...</p>;
+  }
+
+  return <ReportsContent data={data} />;
 }

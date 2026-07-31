@@ -38,6 +38,8 @@ Implementado ate agora:
   atualizacao de status e confirmacao manual de pagamento.
 - personalizacao administrativa de identidade, contatos, cores, Pix, retirada,
   entrega, ativacao da loja e banners.
+- dashboard e relatorios com metricas reais, pedidos recentes, estoque baixo e
+  exportacao CSV autenticada.
 
 ## Funcionalidades Planejadas
 

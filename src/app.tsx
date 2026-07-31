@@ -7,6 +7,7 @@ import { AdminCustomizationPage } from './pages/admin-customization-page';
 import { AdminProductsPage } from './pages/admin-products-page';
 import { AdminOverviewPage } from './pages/admin-overview-page';
 import { AdminOrdersPage } from './pages/admin-orders-page';
+import { AdminReportsPage } from './pages/admin-reports-page';
 import { AdminLoginPage } from './pages/admin-login-page';
 import { CartPage } from './pages/cart-page';
 import { CatalogPage } from './pages/catalog-page';
@@ -32,6 +33,7 @@ export function App() {
                 path="/admin/configuracoes"
                 component={AdminCustomizationPage}
               />
+              <Route path="/admin/relatorios" component={AdminReportsPage} />
               <Route component={AdminOverviewPage} />
             </Switch>
           </AdminLayout>

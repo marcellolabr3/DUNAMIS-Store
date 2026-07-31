@@ -25,3 +25,6 @@ altera o pedido para conferencia.
 Configuracoes da loja sao mantidas em `store_settings` e expostas publicamente
 sem dados sensiveis de Pix. O painel administrativo consome a versao completa
 por rota autenticada.
+
+Relatorios administrativos consultam D1 por rotas autenticadas e alimentam tanto
+a visao geral quanto a pagina de relatorios, incluindo exportacao CSV de pedidos.
