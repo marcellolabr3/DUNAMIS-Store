@@ -73,6 +73,64 @@ export function HomePage() {
   const promotionProduct = featuredProducts.find(
     (product) => product.promotionalPrice
   );
+  const bannerAspectClass = getBannerAspectClass(mainBanner?.aspectRatio);
+  const bannerFitClass =
+    mainBanner?.imageFit === 'contain' ? 'object-contain' : 'object-cover';
+
+  if (mainBanner?.layoutMode === 'full') {
+    return (
+      <>
+        <section
+          className="relative border-b border-border"
+          style={{ backgroundColor: mainBanner.backgroundColor || '#FFFFFF' }}
+        >
+          <img
+            alt={mainBanner.title}
+            className={`w-full ${bannerAspectClass} ${bannerFitClass} object-center`}
+            src={mainBanner.imageUrl}
+          />
+          <div className="absolute inset-0 bg-black/25" />
+          <div className="absolute inset-0 mx-auto grid max-w-6xl content-center px-4 py-10">
+            <div className="max-w-2xl space-y-4" style={{ color: mainBanner.textColor || '#FFFFFF' }}>
+              <p className="w-fit rounded bg-primary px-3 py-1 text-xs font-bold uppercase text-secondary">
+                Loja virtual da igreja
+              </p>
+              <h1 className="text-4xl font-black sm:text-5xl">
+                {settings?.storeName || 'DUNAMIS STORE'}
+              </h1>
+              <p className="text-lg leading-8">
+                {settings?.storeDescription ||
+                  'Produtos da igreja com catalogo simples, retirada local e pagamento inicial por Pix manual.'}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  className="rounded-md bg-primary px-5 py-3 text-sm font-bold text-secondary transition hover:bg-primary-hover"
+                  to="/catalogo"
+                >
+                  Ver catalogo
+                </Link>
+                <Link
+                  className="rounded-md border border-white/70 bg-black/20 px-5 py-3 text-sm font-bold text-white transition hover:bg-black/35"
+                  to="/pedido"
+                >
+                  Acompanhar pedido
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <StorefrontSections
+          categories={categories}
+          featuredProducts={featuredProducts}
+          promotionDismissed={promotionDismissed}
+          promotionProduct={promotionProduct}
+          setPromotionDismissed={setPromotionDismissed}
+          settings={settings}
+        />
+      </>
+    );
+  }
 
   return (
     <>
@@ -114,20 +172,49 @@ export function HomePage() {
             >
               <img
                 alt={mainBanner.title}
-                className="aspect-[16/7] h-full w-full object-cover object-center"
+                className={`${bannerAspectClass} h-full w-full ${bannerFitClass} object-center`}
+                style={{ backgroundColor: mainBanner.backgroundColor }}
                 src={mainBanner.imageUrl}
               />
             </Link>
           ) : (
-            <div className="grid aspect-[16/7] place-items-center rounded-md border border-border bg-background p-6 text-center text-sm font-semibold text-text-light shadow-sm">
+            <div className={`grid ${bannerAspectClass} place-items-center rounded-md border border-border bg-background p-6 text-center text-sm font-semibold text-text-light shadow-sm`}>
               {isLoading ? 'Carregando loja...' : 'Banner principal'}
             </div>
           )}
         </div>
       </section>
 
-      <ProductSection title="Produtos em destaque" products={featuredProducts} />
+      <StorefrontSections
+        categories={categories}
+        featuredProducts={featuredProducts}
+        promotionDismissed={promotionDismissed}
+        promotionProduct={promotionProduct}
+        setPromotionDismissed={setPromotionDismissed}
+        settings={settings}
+      />
+    </>
+  );
+}
 
+function StorefrontSections({
+  categories,
+  featuredProducts,
+  promotionDismissed,
+  promotionProduct,
+  setPromotionDismissed,
+  settings
+}: {
+  categories: Category[];
+  featuredProducts: Product[];
+  promotionDismissed: boolean;
+  promotionProduct?: Product;
+  setPromotionDismissed: (dismissed: boolean) => void;
+  settings?: { storeDescription: string; pickupInstructions: string };
+}) {
+  return (
+    <>
+      <ProductSection title="Produtos em destaque" products={featuredProducts} />
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="mb-5">
           <h2 className="text-2xl font-black text-secondary">
@@ -226,6 +313,20 @@ export function HomePage() {
       )}
     </>
   );
+}
+
+function getBannerAspectClass(aspectRatio?: Banner['aspectRatio']) {
+  switch (aspectRatio) {
+    case '21/9':
+      return 'aspect-[21/9]';
+    case '4/3':
+      return 'aspect-[4/3]';
+    case '1/1':
+      return 'aspect-square';
+    case '16/7':
+    default:
+      return 'aspect-[16/7]';
+  }
 }
 
 interface InfoBlockProps {

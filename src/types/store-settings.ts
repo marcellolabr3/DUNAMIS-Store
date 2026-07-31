@@ -29,4 +29,9 @@ export interface AdminBanner {
   buttonLink: string;
   active: boolean;
   displayOrder: number;
+  layoutMode: 'split' | 'full';
+  aspectRatio: '16/7' | '21/9' | '4/3' | '1/1';
+  imageFit: 'cover' | 'contain';
+  backgroundColor: string;
+  textColor: string;
 }

@@ -93,6 +93,11 @@ function mapBanner(row: {
   button_label: string;
   button_link: string;
   display_order: number;
+  layout_mode: string;
+  aspect_ratio: string;
+  image_fit: string;
+  background_color: string;
+  text_color: string;
 }) {
   return {
     id: row.id,
@@ -101,7 +106,12 @@ function mapBanner(row: {
     imageUrl: row.image_url,
     buttonLabel: row.button_label,
     buttonLink: row.button_link,
-    displayOrder: row.display_order
+    displayOrder: row.display_order,
+    layoutMode: row.layout_mode as 'split' | 'full',
+    aspectRatio: row.aspect_ratio as '16/7' | '21/9' | '4/3' | '1/1',
+    imageFit: row.image_fit as 'cover' | 'contain',
+    backgroundColor: row.background_color,
+    textColor: row.text_color
   };
 }
 

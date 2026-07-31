@@ -23,7 +23,8 @@ export class CatalogRepository {
   getBanners() {
     return this.db
       .prepare(
-        `SELECT id, title, description, image_url, button_label, button_link, display_order
+        `SELECT id, title, description, image_url, button_label, button_link, display_order,
+          layout_mode, aspect_ratio, image_fit, background_color, text_color
         FROM banners
         WHERE active = 1 AND deleted_at IS NULL
         ORDER BY display_order ASC, created_at DESC`

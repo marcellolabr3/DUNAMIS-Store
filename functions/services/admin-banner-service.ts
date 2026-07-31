@@ -64,6 +64,11 @@ function mapBanner(row: AdminBannerRow): AdminBannerInput & { id: string } {
     buttonLabel: row.button_label,
     buttonLink: row.button_link,
     active: row.active === 1,
-    displayOrder: row.display_order
+    displayOrder: row.display_order,
+    layoutMode: row.layout_mode as 'split' | 'full',
+    aspectRatio: row.aspect_ratio as '16/7' | '21/9' | '4/3' | '1/1',
+    imageFit: row.image_fit as 'cover' | 'contain',
+    backgroundColor: row.background_color,
+    textColor: row.text_color
   };
 }

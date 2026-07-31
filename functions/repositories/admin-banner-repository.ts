@@ -9,6 +9,11 @@ export interface AdminBannerRow {
   button_link: string;
   active: number;
   display_order: number;
+  layout_mode: string;
+  aspect_ratio: string;
+  image_fit: string;
+  background_color: string;
+  text_color: string;
 }
 
 export class AdminBannerRepository {
@@ -17,7 +22,8 @@ export class AdminBannerRepository {
   getBanners() {
     return this.db
       .prepare(
-        `SELECT id, title, description, image_url, button_label, button_link, active, display_order
+        `SELECT id, title, description, image_url, button_label, button_link, active, display_order,
+          layout_mode, aspect_ratio, image_fit, background_color, text_color
         FROM banners
         WHERE deleted_at IS NULL
         ORDER BY display_order ASC, created_at DESC`
@@ -28,7 +34,8 @@ export class AdminBannerRepository {
   getBanner(id: string) {
     return this.db
       .prepare(
-        `SELECT id, title, description, image_url, button_label, button_link, active, display_order
+        `SELECT id, title, description, image_url, button_label, button_link, active, display_order,
+          layout_mode, aspect_ratio, image_fit, background_color, text_color
         FROM banners
         WHERE id = ? AND deleted_at IS NULL
         LIMIT 1`
@@ -41,8 +48,9 @@ export class AdminBannerRepository {
     return this.db
       .prepare(
         `INSERT INTO banners (
-          id, title, description, image_url, button_label, button_link, active, display_order
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+          id, title, description, image_url, button_label, button_link, active, display_order,
+          layout_mode, aspect_ratio, image_fit, background_color, text_color
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .bind(
         id,
@@ -52,7 +60,12 @@ export class AdminBannerRepository {
         input.buttonLabel,
         input.buttonLink,
         input.active ? 1 : 0,
-        input.displayOrder
+        input.displayOrder,
+        input.layoutMode,
+        input.aspectRatio,
+        input.imageFit,
+        input.backgroundColor,
+        input.textColor
       )
       .run();
   }
@@ -68,6 +81,11 @@ export class AdminBannerRepository {
           button_link = ?,
           active = ?,
           display_order = ?,
+          layout_mode = ?,
+          aspect_ratio = ?,
+          image_fit = ?,
+          background_color = ?,
+          text_color = ?,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND deleted_at IS NULL`
       )
@@ -79,6 +97,11 @@ export class AdminBannerRepository {
         input.buttonLink,
         input.active ? 1 : 0,
         input.displayOrder,
+        input.layoutMode,
+        input.aspectRatio,
+        input.imageFit,
+        input.backgroundColor,
+        input.textColor,
         id
       )
       .run();

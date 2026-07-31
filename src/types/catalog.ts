@@ -56,6 +56,11 @@ export interface Banner {
   buttonLabel: string;
   buttonLink: string;
   displayOrder: number;
+  layoutMode?: 'split' | 'full';
+  aspectRatio?: '16/7' | '21/9' | '4/3' | '1/1';
+  imageFit?: 'cover' | 'contain';
+  backgroundColor?: string;
+  textColor?: string;
 }
 
 export type CatalogSort = 'recent' | 'price_asc' | 'price_desc';

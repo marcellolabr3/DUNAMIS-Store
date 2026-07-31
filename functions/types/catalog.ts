@@ -15,6 +15,11 @@ export interface BannerRow {
   button_label: string;
   button_link: string;
   display_order: number;
+  layout_mode: string;
+  aspect_ratio: string;
+  image_fit: string;
+  background_color: string;
+  text_color: string;
 }
 
 export interface ProductRow {

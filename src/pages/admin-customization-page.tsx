@@ -21,7 +21,12 @@ const emptyBanner: Omit<AdminBanner, 'id'> = {
   buttonLabel: '',
   buttonLink: '',
   active: true,
-  displayOrder: 0
+  displayOrder: 0,
+  layoutMode: 'split',
+  aspectRatio: '16/7',
+  imageFit: 'cover',
+  backgroundColor: '#FFFFFF',
+  textColor: '#171717'
 };
 
 export function AdminCustomizationPage() {
@@ -130,7 +135,12 @@ export function AdminCustomizationPage() {
         buttonLabel: bannerDraft.buttonLabel,
         buttonLink: bannerDraft.buttonLink,
         active: bannerDraft.active,
-        displayOrder: bannerDraft.displayOrder
+        displayOrder: bannerDraft.displayOrder,
+        layoutMode: bannerDraft.layoutMode,
+        aspectRatio: bannerDraft.aspectRatio,
+        imageFit: bannerDraft.imageFit,
+        backgroundColor: bannerDraft.backgroundColor,
+        textColor: bannerDraft.textColor
       };
       const result = bannerDraft.id
         ? await updateAdminBanner(bannerDraft.id, input)
@@ -605,10 +615,98 @@ export function AdminCustomizationPage() {
                 {bannerDraft.imageUrl && (
                   <img
                     alt={bannerDraft.title || 'Pre-visualizacao do banner'}
-                    className="aspect-[16/7] w-full rounded-md border border-border bg-background object-cover object-center"
+                    className={`w-full rounded-md border border-border bg-background object-center ${
+                      bannerDraft.aspectRatio === '21/9'
+                        ? 'aspect-[21/9]'
+                        : bannerDraft.aspectRatio === '4/3'
+                          ? 'aspect-[4/3]'
+                          : bannerDraft.aspectRatio === '1/1'
+                            ? 'aspect-square'
+                            : 'aspect-[16/7]'
+                    } ${
+                      bannerDraft.imageFit === 'contain'
+                        ? 'object-contain'
+                        : 'object-cover'
+                    }`}
+                    style={{ backgroundColor: bannerDraft.backgroundColor }}
                     src={bannerDraft.imageUrl}
                   />
                 )}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label="Modo do banner">
+                    <select
+                      className="input"
+                      onChange={(event) =>
+                        setBannerDraft({
+                          ...bannerDraft,
+                          layoutMode: event.target.value as 'split' | 'full'
+                        })
+                      }
+                      value={bannerDraft.layoutMode}
+                    >
+                      <option value="split">Texto ao lado da imagem</option>
+                      <option value="full">Imagem como fundo da tela</option>
+                    </select>
+                  </Field>
+                  <Field label="Proporcao">
+                    <select
+                      className="input"
+                      onChange={(event) =>
+                        setBannerDraft({
+                          ...bannerDraft,
+                          aspectRatio: event.target.value as AdminBanner['aspectRatio']
+                        })
+                      }
+                      value={bannerDraft.aspectRatio}
+                    >
+                      <option value="16/7">Largo</option>
+                      <option value="21/9">Panoramico</option>
+                      <option value="4/3">Padrao</option>
+                      <option value="1/1">Quadrado</option>
+                    </select>
+                  </Field>
+                  <Field label="Ajuste da imagem">
+                    <select
+                      className="input"
+                      onChange={(event) =>
+                        setBannerDraft({
+                          ...bannerDraft,
+                          imageFit: event.target.value as 'cover' | 'contain'
+                        })
+                      }
+                      value={bannerDraft.imageFit}
+                    >
+                      <option value="cover">Preencher cortando</option>
+                      <option value="contain">Mostrar inteira</option>
+                    </select>
+                  </Field>
+                  <Field label="Cor de fundo">
+                    <input
+                      className="input h-11"
+                      onChange={(event) =>
+                        setBannerDraft({
+                          ...bannerDraft,
+                          backgroundColor: event.target.value
+                        })
+                      }
+                      type="color"
+                      value={bannerDraft.backgroundColor}
+                    />
+                  </Field>
+                  <Field label="Cor do texto">
+                    <input
+                      className="input h-11"
+                      onChange={(event) =>
+                        setBannerDraft({
+                          ...bannerDraft,
+                          textColor: event.target.value
+                        })
+                      }
+                      type="color"
+                      value={bannerDraft.textColor}
+                    />
+                  </Field>
+                </div>
                 <Field label="Descricao">
                   <textarea
                     className="input min-h-20"
