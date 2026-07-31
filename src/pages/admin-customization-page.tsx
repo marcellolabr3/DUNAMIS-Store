@@ -8,6 +8,7 @@ import {
   getAdminBanners,
   getAdminSettings,
   uploadAdminBannerImage,
+  uploadAdminStoreAsset,
   updateAdminBanner,
   updateAdminSettings
 } from '../services/admin-customization-service';
@@ -31,6 +32,9 @@ export function AdminCustomizationPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingBannerImage, setIsUploadingBannerImage] = useState(false);
+  const [uploadingStoreAsset, setUploadingStoreAsset] = useState<
+    'logo' | 'favicon' | undefined
+  >();
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const showBanners = location.pathname.includes('/banners');
@@ -94,6 +98,7 @@ export function AdminCustomizationPage() {
     try {
       const data = await updateAdminSettings(settings);
       setSettings(data.settings);
+      applyDocumentBranding(data.settings);
       setMessage('Configuracoes salvas.');
     } catch (saveError) {
       setError(
@@ -194,6 +199,38 @@ export function AdminCustomizationPage() {
       );
     } finally {
       setIsUploadingBannerImage(false);
+    }
+  }
+
+  async function handleStoreAssetUpload(
+    kind: 'logo' | 'favicon',
+    file?: File
+  ) {
+    if (!file || !settings) {
+      return;
+    }
+
+    setUploadingStoreAsset(kind);
+    setMessage('');
+    setError('');
+
+    try {
+      const result = await uploadAdminStoreAsset(file, kind);
+      setSettings({
+        ...settings,
+        [kind === 'logo' ? 'logoUrl' : 'faviconUrl']: result.asset.url
+      });
+      setMessage(
+        `${kind === 'logo' ? 'Logo' : 'Favicon'} enviado. Salve as configuracoes para aplicar.`
+      );
+    } catch (uploadError) {
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : 'Nao foi possivel enviar o arquivo.'
+      );
+    } finally {
+      setUploadingStoreAsset(undefined);
     }
   }
 
@@ -306,6 +343,28 @@ export function AdminCustomizationPage() {
                 value={settings.faviconUrl}
               />
             </Field>
+            <Field label="Carregar logo do computador">
+              <input
+                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                className="block w-full text-sm text-text-light file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-bold file:text-secondary"
+                disabled={Boolean(uploadingStoreAsset)}
+                onChange={(event) =>
+                  void handleStoreAssetUpload('logo', event.target.files?.[0])
+                }
+                type="file"
+              />
+            </Field>
+            <Field label="Carregar favicon do computador">
+              <input
+                accept=".png,.webp,.ico,image/png,image/webp,image/x-icon,image/vnd.microsoft.icon"
+                className="block w-full text-sm text-text-light file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-bold file:text-secondary"
+                disabled={Boolean(uploadingStoreAsset)}
+                onChange={(event) =>
+                  void handleStoreAssetUpload('favicon', event.target.files?.[0])
+                }
+                type="file"
+              />
+            </Field>
             <Field label="Cor principal">
               <input
                 className="input h-11"
@@ -337,6 +396,12 @@ export function AdminCustomizationPage() {
               value={settings.storeDescription}
             />
           </Field>
+
+          {uploadingStoreAsset && (
+            <p className="text-sm font-semibold text-text-light">
+              Enviando {uploadingStoreAsset === 'logo' ? 'logo' : 'favicon'}...
+            </p>
+          )}
 
           <div className="grid gap-3 md:grid-cols-3">
             <Field label="Chave Pix">
@@ -433,10 +498,22 @@ export function AdminCustomizationPage() {
               }}
             >
               <p className="text-xs font-bold uppercase">Loja</p>
+              {settings.logoUrl && (
+                <img
+                  alt={`Logo ${settings.storeName}`}
+                  className="mt-3 max-h-16 max-w-40 object-contain"
+                  src={settings.logoUrl}
+                />
+              )}
               <p className="mt-1 text-2xl font-black">{settings.storeName}</p>
               <p className="mt-2 text-sm text-text-light">
                 {settings.storeDescription}
               </p>
+              {settings.faviconUrl && (
+                <p className="mt-3 truncate text-xs font-semibold text-text-light">
+                  Favicon: {settings.faviconUrl}
+                </p>
+              )}
             </div>
           </div>
         </aside>
@@ -607,6 +684,24 @@ export function AdminCustomizationPage() {
       </div>
     </section>
   );
+}
+
+function applyDocumentBranding(settings: StoreSettings) {
+  document.title = settings.storeName || 'DUNAMIS STORE';
+
+  if (!settings.faviconUrl) {
+    return;
+  }
+
+  let favicon = document.querySelector<HTMLLinkElement>("link[rel='icon']");
+
+  if (!favicon) {
+    favicon = document.createElement('link');
+    favicon.rel = 'icon';
+    document.head.appendChild(favicon);
+  }
+
+  favicon.href = settings.faviconUrl;
 }
 
 function Field({

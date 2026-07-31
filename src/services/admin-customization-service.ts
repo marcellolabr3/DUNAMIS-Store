@@ -111,6 +111,32 @@ export async function uploadAdminBannerImage(file: File) {
   };
 }
 
+export async function uploadAdminStoreAsset(
+  file: File,
+  kind: 'logo' | 'favicon'
+) {
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('kind', kind);
+
+  const response = await fetch('/api/admin/store-assets', {
+    method: 'POST',
+    credentials: 'include',
+    body: formData
+  });
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, 'Nao foi possivel enviar o arquivo.'));
+  }
+
+  return (await response.json()) as {
+    asset: {
+      url: string;
+      fileName: string;
+    };
+  };
+}
+
 async function getErrorMessage(response: Response, fallback: string) {
   try {
     const payload = (await response.json()) as {

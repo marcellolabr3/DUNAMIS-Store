@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
   BarChart3,
   Boxes,
@@ -16,6 +16,10 @@ import { NavLink, useHistory } from 'react-router-dom';
 
 import { useAdminAuth } from '../hooks/use-admin-auth';
 import { logoutAdmin } from '../services/admin-auth-service';
+import {
+  type PublicStoreSettings,
+  getPublicSettings
+} from '../services/public-settings-service';
 import { SiteLogo } from '../components/site-logo';
 
 interface AdminLayoutProps {
@@ -38,6 +42,31 @@ const adminItems = [
 export function AdminLayout({ children }: AdminLayoutProps) {
   const history = useHistory();
   const { admin, setAdmin } = useAdminAuth();
+  const [settings, setSettings] = useState<PublicStoreSettings>();
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadSettings() {
+      try {
+        const loadedSettings = await getPublicSettings();
+
+        if (active) {
+          setSettings(loadedSettings);
+        }
+      } catch {
+        if (active) {
+          setSettings(undefined);
+        }
+      }
+    }
+
+    void loadSettings();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   async function handleLogout() {
     await logoutAdmin();
@@ -49,7 +78,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     <div className="min-h-screen bg-admin text-text lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="border-b border-border bg-surface lg:min-h-screen lg:border-b-0 lg:border-r">
         <div className="flex h-16 items-center justify-between px-4">
-          <SiteLogo compact />
+          <SiteLogo
+            compact
+            logoUrl={settings?.logoUrl}
+            storeName={settings?.storeName}
+          />
           <NavLink
             aria-label="Voltar para loja"
             className="inline-grid size-10 place-items-center rounded-md border border-border text-text-light hover:text-secondary"
@@ -89,7 +122,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 Painel administrativo
               </p>
               <h1 className="mt-1 text-2xl font-bold text-secondary">
-                DUNAMIS STORE
+                {settings?.storeName || 'DUNAMIS STORE'}
               </h1>
               {admin && (
                 <p className="mt-1 text-sm text-text-light">{admin.email}</p>

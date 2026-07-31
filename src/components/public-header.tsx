@@ -3,6 +3,7 @@ import { Menu, ShoppingCart } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 
 import { useCart } from '../hooks/use-cart';
+import type { PublicStoreSettings } from '../services/public-settings-service';
 import { SiteLogo } from './site-logo';
 
 const navItems = [
@@ -11,14 +12,14 @@ const navItems = [
   { label: 'Acompanhar pedido', to: '/pedido' }
 ];
 
-export function PublicHeader() {
+export function PublicHeader({ settings }: { settings?: PublicStoreSettings }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { summary } = useCart();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-        <SiteLogo />
+        <SiteLogo logoUrl={settings?.logoUrl} storeName={settings?.storeName} />
 
         <nav
           aria-label="Menu principal"
