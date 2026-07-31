@@ -1,24 +1,4 @@
-export interface StoreSettings {
-  storeName: string;
-  storeDescription: string;
-  logoUrl: string;
-  faviconUrl: string;
-  primaryColor: string;
-  secondaryColor: string;
-  contactEmail: string;
-  contactPhone: string;
-  whatsappNumber: string;
-  pixKey: string;
-  pixReceiverName: string;
-  pixReceiverCity: string;
-  orderExpirationMinutes: number;
-  allowPickup: boolean;
-  allowDelivery: boolean;
-  pickupInstructions: string;
-  deliveryInstructions: string;
-  minimumOrderValue: number;
-  storeActive: boolean;
-}
+import type { StoreSettings } from '../types/store-settings';
 
 export const defaultStoreSettings: StoreSettings = {
   storeName: 'DUNAMIS STORE',
