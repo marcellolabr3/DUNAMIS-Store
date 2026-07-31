@@ -602,7 +602,7 @@ export function AdminCustomizationPage() {
                 {bannerDraft.imageUrl && (
                   <img
                     alt={bannerDraft.title || 'Pre-visualizacao do banner'}
-                    className="aspect-[16/7] w-full rounded-md border border-border bg-background object-cover"
+                    className="aspect-[16/7] w-full rounded-md border border-border bg-background object-cover object-center"
                     src={bannerDraft.imageUrl}
                   />
                 )}

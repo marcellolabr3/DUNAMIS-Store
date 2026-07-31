@@ -105,12 +105,12 @@ export function HomePage() {
             >
               <img
                 alt={mainBanner.title}
-                className="aspect-[4/3] h-full w-full object-cover"
+                className="aspect-[16/7] h-full w-full object-cover object-center"
                 src={mainBanner.imageUrl}
               />
             </Link>
           ) : (
-            <div className="grid aspect-[4/3] place-items-center rounded-md border border-border bg-background p-6 text-center text-sm font-semibold text-text-light shadow-sm">
+            <div className="grid aspect-[16/7] place-items-center rounded-md border border-border bg-background p-6 text-center text-sm font-semibold text-text-light shadow-sm">
               {isLoading ? 'Carregando loja...' : 'Banner principal'}
             </div>
           )}
