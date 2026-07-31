@@ -36,6 +36,8 @@ Implementado ate agora:
   variacoes e imagens por URL.
 - administracao de pedidos com filtros, detalhes, comprovantes privados, historico,
   atualizacao de status e confirmacao manual de pagamento.
+- personalizacao administrativa de identidade, contatos, cores, Pix, retirada,
+  entrega, ativacao da loja e banners.
 
 ## Funcionalidades Planejadas
 

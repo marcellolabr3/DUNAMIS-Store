@@ -21,3 +21,7 @@ as regras de catalogo separadas da interface do painel.
 A gestao de pedidos tambem fica isolada em service/repository. A confirmacao de
 pagamento e sempre uma acao manual do administrador; comprovante enviado apenas
 altera o pedido para conferencia.
+
+Configuracoes da loja sao mantidas em `store_settings` e expostas publicamente
+sem dados sensiveis de Pix. O painel administrativo consome a versao completa
+por rota autenticada.
