@@ -1,9 +1,10 @@
-import { FormEvent } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 
 import { ProductCard } from '../components/product-card';
 import { getCatalogData } from '../services/catalog-service';
-import type { CatalogSort } from '../types/catalog';
+import { getPublicCatalog } from '../services/public-catalog-service';
+import type { CatalogSort, Category, Product } from '../types/catalog';
 
 export function CatalogPage() {
   const history = useHistory();
@@ -12,11 +13,53 @@ export function CatalogPage() {
   const selectedCategory = params.get('categoria') ?? '';
   const query = params.get('busca') ?? '';
   const sort = (params.get('ordem') as CatalogSort | null) ?? 'recent';
-  const { categories, products } = getCatalogData({
+  const initialCatalog = getCatalogData({
     category: selectedCategory || undefined,
     query,
     sort
   });
+  const [categories, setCategories] = useState<Category[]>(initialCatalog.categories);
+  const [products, setProducts] = useState<Product[]>(initialCatalog.products);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadCatalog() {
+      setIsLoading(true);
+      setError('');
+
+      try {
+        const data = await getPublicCatalog({
+          category: selectedCategory || undefined,
+          query,
+          sort
+        });
+
+        if (!active) {
+          return;
+        }
+
+        setCategories(data.categories);
+        setProducts(data.products);
+      } catch {
+        if (active) {
+          setError('Nao foi possivel carregar o catalogo.');
+        }
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadCatalog();
+
+    return () => {
+      active = false;
+    };
+  }, [query, selectedCategory, sort]);
 
   function updateSearch(nextParams: URLSearchParams) {
     history.push({
@@ -132,7 +175,15 @@ export function CatalogPage() {
         </label>
       </div>
 
-      {products.length > 0 ? (
+      {isLoading && products.length === 0 ? (
+        <p className="rounded-md border border-border bg-surface p-6 text-sm text-text-light">
+          Carregando catalogo...
+        </p>
+      ) : error ? (
+        <p className="rounded-md border border-danger/30 bg-danger/10 p-6 text-sm font-semibold text-danger">
+          {error}
+        </p>
+      ) : products.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />

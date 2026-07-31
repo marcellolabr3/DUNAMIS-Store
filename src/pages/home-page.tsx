@@ -1,19 +1,58 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ProductSection } from '../components/product-section';
 import {
   demoBanners,
-  demoCategories
+  demoCategories,
+  demoProducts
 } from '../services/demo-catalog-data';
-import {
-  getFeaturedProducts,
-  getRecentProducts
-} from '../services/catalog-service';
+import { getPublicHome } from '../services/public-catalog-service';
+import type { Banner, Category, Product } from '../types/catalog';
 
 export function HomePage() {
-  const [mainBanner] = demoBanners;
-  const featuredProducts = getFeaturedProducts();
-  const recentProducts = getRecentProducts();
+  const [banners, setBanners] = useState<Banner[]>(demoBanners);
+  const [categories, setCategories] = useState<Category[]>(demoCategories);
+  const [products, setProducts] = useState<Product[]>(demoProducts);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadHome() {
+      try {
+        const data = await getPublicHome();
+
+        if (!active) {
+          return;
+        }
+
+        setBanners(data.banners);
+        setCategories(data.categories);
+        setProducts(data.products);
+      } catch {
+        if (active) {
+          setBanners([]);
+          setCategories([]);
+          setProducts([]);
+        }
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadHome();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const [mainBanner] = banners;
+  const featuredProducts = products.filter((product) => product.featured).slice(0, 4);
+  const recentProducts = products.slice(0, 4);
 
   return (
     <>
@@ -48,16 +87,22 @@ export function HomePage() {
             </div>
           </div>
 
-          <Link
-            className="block overflow-hidden rounded-md border border-border bg-background shadow-sm"
-            to={mainBanner.buttonLink}
-          >
-            <img
-              alt={mainBanner.title}
-              className="aspect-[4/3] h-full w-full object-cover"
-              src={mainBanner.imageUrl}
-            />
-          </Link>
+          {mainBanner ? (
+            <Link
+              className="block overflow-hidden rounded-md border border-border bg-background shadow-sm"
+              to={mainBanner.buttonLink || '/catalogo'}
+            >
+              <img
+                alt={mainBanner.title}
+                className="aspect-[4/3] h-full w-full object-cover"
+                src={mainBanner.imageUrl}
+              />
+            </Link>
+          ) : (
+            <div className="grid aspect-[4/3] place-items-center rounded-md border border-border bg-background p-6 text-center text-sm font-semibold text-text-light shadow-sm">
+              {isLoading ? 'Carregando loja...' : 'Banner principal'}
+            </div>
+          )}
         </div>
       </section>
 
@@ -68,7 +113,7 @@ export function HomePage() {
           </h2>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {demoCategories.map((category) => (
+          {categories.map((category) => (
             <Link
               className="overflow-hidden rounded-md border border-border bg-surface shadow-sm transition hover:-translate-y-0.5 hover:border-primary"
               key={category.id}

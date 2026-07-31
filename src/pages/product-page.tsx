@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ProductSection } from '../components/product-section';
 import { useCart } from '../hooks/use-cart';
@@ -8,6 +8,11 @@ import {
   getProductStock,
   getRelatedProducts
 } from '../services/catalog-service';
+import {
+  getPublicCatalog,
+  getPublicProduct
+} from '../services/public-catalog-service';
+import type { Product } from '../types/catalog';
 import { formatMoney } from '../utils/money';
 
 interface ProductRouteParams {
@@ -16,10 +21,85 @@ interface ProductRouteParams {
 
 export function ProductPage() {
   const { slug } = useParams<ProductRouteParams>();
-  const product = getProductBySlug(slug);
   const { addItem, lastAddedLineId } = useCart();
+  const fallbackProduct = getProductBySlug(slug);
+  const [product, setProduct] = useState<Product | undefined>(fallbackProduct);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>(
+    fallbackProduct ? getRelatedProducts(fallbackProduct) : []
+  );
+  const [isLoading, setIsLoading] = useState(!fallbackProduct);
   const [selectedVariantId, setSelectedVariantId] = useState<string>();
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string>();
   const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadProduct() {
+      const nextFallbackProduct = getProductBySlug(slug);
+      setProduct(nextFallbackProduct);
+      setRelatedProducts(
+        nextFallbackProduct ? getRelatedProducts(nextFallbackProduct) : []
+      );
+      setIsLoading(!nextFallbackProduct);
+      setSelectedVariantId(undefined);
+      setSelectedImageUrl(undefined);
+      setQuantity(1);
+
+      try {
+        const loadedProduct = await getPublicProduct(slug);
+
+        if (!active) {
+          return;
+        }
+
+        setProduct(loadedProduct);
+        setSelectedImageUrl(
+          loadedProduct?.images.find((image) => image.isMain)?.url ??
+            loadedProduct?.images[0]?.url
+        );
+
+        if (loadedProduct) {
+          const catalog = await getPublicCatalog({
+            category: loadedProduct.categorySlug
+          });
+
+          if (active) {
+            setRelatedProducts(
+              catalog.products
+                .filter((item) => item.id !== loadedProduct.id)
+                .slice(0, 4)
+            );
+          }
+        } else {
+          setRelatedProducts([]);
+        }
+      } catch {
+        if (active) {
+          setProduct(undefined);
+          setRelatedProducts([]);
+        }
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadProduct();
+
+    return () => {
+      active = false;
+    };
+  }, [slug]);
+
+  if (isLoading) {
+    return (
+      <section className="mx-auto grid min-h-[50vh] max-w-4xl content-center gap-4 px-4 py-16">
+        <h1 className="text-3xl font-black text-secondary">Carregando produto</h1>
+      </section>
+    );
+  }
 
   if (!product) {
     return (
@@ -36,9 +116,10 @@ export function ProductPage() {
 
   const currentProduct = product;
   const mainImage = currentProduct.images.find((image) => image.isMain);
+  const displayedImageUrl =
+    selectedImageUrl ?? mainImage?.url ?? currentProduct.images[0]?.url;
   const stock = getProductStock(currentProduct);
   const displayPrice = currentProduct.promotionalPrice ?? currentProduct.price;
-  const relatedProducts = getRelatedProducts(currentProduct);
   const selectedVariant =
     currentProduct.variants.find((variant) => variant.id === selectedVariantId) ??
     currentProduct.variants[0];
@@ -71,9 +152,31 @@ export function ProductPage() {
             <img
               alt={mainImage?.altText ?? currentProduct.name}
               className="h-full w-full object-cover"
-              src={mainImage?.url ?? '/demo/products/camiseta-classica.svg'}
+              src={displayedImageUrl ?? '/demo/products/camiseta-classica.svg'}
             />
           </div>
+          {currentProduct.images.length > 1 && (
+            <div className="mt-3 grid grid-cols-5 gap-2">
+              {currentProduct.images.map((image) => (
+                <button
+                  className={`aspect-square overflow-hidden rounded-md border ${
+                    displayedImageUrl === image.url
+                      ? 'border-primary ring-2 ring-primary/30'
+                      : 'border-border'
+                  }`}
+                  key={image.id}
+                  onClick={() => setSelectedImageUrl(image.url)}
+                  type="button"
+                >
+                  <img
+                    alt={image.altText || currentProduct.name}
+                    className="h-full w-full object-cover"
+                    src={image.url}
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="grid content-start gap-6">

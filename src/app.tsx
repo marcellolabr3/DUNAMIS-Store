@@ -4,6 +4,8 @@ import { AdminProtectedRoute } from './components/admin-protected-route';
 import { AdminLayout } from './layouts/admin-layout';
 import { PublicLayout } from './layouts/public-layout';
 import { AdminCustomizationPage } from './pages/admin-customization-page';
+import { AdminAdminsPage } from './pages/admin-admins-page';
+import { AdminLogsPage } from './pages/admin-logs-page';
 import { AdminProductsPage } from './pages/admin-products-page';
 import { AdminOverviewPage } from './pages/admin-overview-page';
 import { AdminOrdersPage } from './pages/admin-orders-page';
@@ -34,6 +36,11 @@ export function App() {
                 component={AdminCustomizationPage}
               />
               <Route path="/admin/relatorios" component={AdminReportsPage} />
+              <Route
+                path="/admin/administradores"
+                component={AdminAdminsPage}
+              />
+              <Route path="/admin/logs" component={AdminLogsPage} />
               <Route component={AdminOverviewPage} />
             </Switch>
           </AdminLayout>

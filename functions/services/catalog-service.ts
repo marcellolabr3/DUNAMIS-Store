@@ -22,6 +22,12 @@ export class CatalogService {
     };
   }
 
+  async getCategories() {
+    const categories = await this.repository.getCategories();
+
+    return categories.results.map(mapCategory);
+  }
+
   async getProducts(filters: {
     category?: string;
     query?: string;

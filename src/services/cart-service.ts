@@ -12,10 +12,13 @@ export function getUnitPrice(product: Product, variant: ProductVariant) {
   return (product.promotionalPrice ?? product.price) + variant.priceAdjustment;
 }
 
-export function hydrateCartItems(items: CartItem[]): CartLine[] {
+export function hydrateCartItems(
+  items: CartItem[],
+  products: Product[] = demoProducts
+): CartLine[] {
   return items
     .map((item) => {
-      const product = demoProducts.find((candidate) => candidate.id === item.productId);
+      const product = products.find((candidate) => candidate.id === item.productId);
       const variant = product?.variants.find(
         (candidate) => candidate.id === item.variantId
       );
@@ -77,8 +80,11 @@ export function mergeCartItem(items: CartItem[], nextItem: CartItem): CartItem[]
   );
 }
 
-export function normalizeCartItems(items: CartItem[]): CartItem[] {
-  return hydrateCartItems(items).map((line) => line.item);
+export function normalizeCartItems(
+  items: CartItem[],
+  products: Product[] = demoProducts
+): CartItem[] {
+  return hydrateCartItems(items, products).map((line) => line.item);
 }
 
 export function clampQuantity(quantity: number, maxQuantity: number) {

@@ -485,8 +485,10 @@ function ProductForm({
     });
   }
 
-  async function handleImageUpload(file?: File) {
-    if (!file) {
+  async function handleImageUpload(files?: FileList | null) {
+    const selectedFiles = Array.from(files ?? []);
+
+    if (selectedFiles.length === 0) {
       return;
     }
 
@@ -495,16 +497,27 @@ function ProductForm({
     onMessage('');
 
     try {
-      const result = await uploadAdminProductImage(file);
-      updateField('images', [
-        {
+      const remainingSlots = Math.max(8 - draft.images.length, 0);
+      const filesToUpload = selectedFiles.slice(0, remainingSlots);
+      const uploadedImages = await Promise.all(
+        filesToUpload.map((file) => uploadAdminProductImage(file))
+      );
+      const nextImages = [
+        ...draft.images,
+        ...uploadedImages.map((result, index) => ({
           url: result.image.url,
           altText: draft.name,
-          displayOrder: 0,
-          isMain: true
-        }
-      ]);
-      onMessage('Imagem enviada. Salve o produto para gravar a alteracao.');
+          displayOrder: draft.images.length + index,
+          isMain: draft.images.length === 0 && index === 0
+        }))
+      ].map((image, index) => ({
+        ...image,
+        displayOrder: index,
+        isMain: image.isMain || index === 0
+      }));
+
+      updateField('images', ensureSingleMainImage(nextImages));
+      onMessage('Imagens enviadas. Salve o produto para gravar a alteracao.');
     } catch (uploadError) {
       onError(
         uploadError instanceof Error
@@ -514,6 +527,25 @@ function ProductForm({
     } finally {
       setIsUploadingImage(false);
     }
+  }
+
+  function removeImage(index: number) {
+    updateField(
+      'images',
+      ensureSingleMainImage(
+        draft.images.filter((_, imageIndex) => imageIndex !== index)
+      )
+    );
+  }
+
+  function setMainImage(index: number) {
+    updateField(
+      'images',
+      draft.images.map((image, imageIndex) => ({
+        ...image,
+        isMain: imageIndex === index
+      }))
+    );
   }
 
   return (
@@ -721,53 +753,106 @@ function ProductForm({
       </div>
 
       <div className="grid gap-3">
-        <Field label="Imagem principal do produto">
+        <Field label="Imagens do produto">
           <input
             accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
             className="block w-full text-sm text-text-light file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-bold file:text-secondary"
             disabled={isUploadingImage}
-            onChange={(event) => void handleImageUpload(event.target.files?.[0])}
+            multiple
+            onChange={(event) => void handleImageUpload(event.target.files)}
             type="file"
           />
         </Field>
-        <Field label="URL da imagem principal">
+        <Field label="Adicionar imagem por URL">
           <input
             className="input"
-            onChange={(event) =>
+            onBlur={(event) => {
+              const url = event.target.value.trim();
+
+              if (!url) {
+                return;
+              }
+
               updateField(
                 'images',
-                event.target.value
-                  ? [
-                      {
-                        url: event.target.value,
-                        altText: draft.name,
-                        displayOrder: 0,
-                        isMain: true
-                      }
-                    ]
-                  : []
-              )
-            }
+                ensureSingleMainImage([
+                  ...draft.images,
+                  {
+                    url,
+                    altText: draft.name,
+                    displayOrder: draft.images.length,
+                    isMain: draft.images.length === 0
+                  }
+                ])
+              );
+              event.target.value = '';
+            }}
             placeholder="/assets/demo-produto.svg"
-            value={draft.images[0]?.url ?? ''}
           />
         </Field>
-        {draft.images[0]?.url && (
-          <img
-            alt={draft.images[0].altText || draft.name || 'Imagem do produto'}
-            className="aspect-square w-28 rounded-md border border-border object-cover"
-            src={draft.images[0].url}
-          />
+        {draft.images.length > 0 && (
+          <div className="grid gap-2">
+            {draft.images.map((image, index) => (
+              <div
+                className="grid gap-3 rounded-md border border-border p-2 sm:grid-cols-[4.5rem_1fr_auto]"
+                key={`${image.url}-${index}`}
+              >
+                <img
+                  alt={image.altText || draft.name || 'Imagem do produto'}
+                  className="aspect-square w-full rounded-md bg-background object-cover"
+                  src={image.url}
+                />
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-semibold text-text-light">
+                    {image.url}
+                  </p>
+                  <button
+                    className={`mt-2 rounded-md border px-3 py-1 text-xs font-bold ${
+                      image.isMain
+                        ? 'border-primary bg-primary/20 text-secondary'
+                        : 'border-border text-text-light'
+                    }`}
+                    onClick={() => setMainImage(index)}
+                    type="button"
+                  >
+                    {image.isMain ? 'Imagem principal' : 'Definir principal'}
+                  </button>
+                </div>
+                <button
+                  aria-label="Remover imagem"
+                  className="inline-grid size-9 place-items-center rounded-md border border-border text-danger hover:bg-danger/10"
+                  onClick={() => removeImage(index)}
+                  type="button"
+                >
+                  <Trash2 aria-hidden="true" size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
         )}
         <p className="flex items-center gap-2 text-xs font-semibold text-text-light">
           <Upload aria-hidden="true" size={14} />
           {isUploadingImage
             ? 'Enviando imagem...'
-            : 'Aceita JPG, PNG ou WebP de ate 4 MB.'}
+            : 'Aceita ate 8 imagens em JPG, PNG ou WebP de ate 4 MB cada.'}
         </p>
       </div>
     </form>
   );
+}
+
+function ensureSingleMainImage(images: DraftProduct['images']) {
+  if (images.length === 0) {
+    return [];
+  }
+
+  const mainIndex = images.findIndex((image) => image.isMain);
+
+  return images.map((image, index) => ({
+    ...image,
+    displayOrder: index,
+    isMain: mainIndex === -1 ? index === 0 : index === mainIndex
+  }));
 }
 
 function Metric({ label, value }: { label: string; value: number }) {

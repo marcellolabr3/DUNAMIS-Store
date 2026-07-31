@@ -15,11 +15,14 @@ function makeService(env: Env) {
 export async function onRequestGet(context: PagesFunctionContext) {
   const url = new URL(context.request.url);
   const service = makeService(context.env);
-  const products = await service.getProducts({
+  const [categories, products] = await Promise.all([
+    service.getCategories(),
+    service.getProducts({
     category: url.searchParams.get('categoria') ?? undefined,
     query: url.searchParams.get('busca') ?? undefined,
     sort: url.searchParams.get('ordem') ?? undefined
-  });
+    })
+  ]);
 
-  return jsonResponse({ products });
+  return jsonResponse({ categories, products });
 }
