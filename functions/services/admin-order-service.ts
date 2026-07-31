@@ -59,12 +59,21 @@ export class AdminOrderService {
     };
   }
 
-  async updateStatus(id: string, adminId: string, input: unknown) {
+  async updateStatus(
+    id: string,
+    adminId: string,
+    adminRole: string,
+    input: unknown
+  ) {
     const parsed = adminOrderStatusSchema.parse(input);
     const order = await this.repository.getOrder(id);
 
     if (!order) {
       return undefined;
+    }
+
+    if (parsed.status === 'PAID') {
+      await this.ensureCanConfirmPayment(id, adminRole);
     }
 
     await this.repository.updateStatus({
@@ -78,12 +87,21 @@ export class AdminOrderService {
     return this.details(id);
   }
 
-  async updatePayment(id: string, adminId: string, input: unknown) {
+  async updatePayment(
+    id: string,
+    adminId: string,
+    adminRole: string,
+    input: unknown
+  ) {
     const parsed = adminPaymentActionSchema.parse(input);
     const order = await this.repository.getOrder(id);
 
     if (!order) {
       return undefined;
+    }
+
+    if (parsed.action === 'confirm') {
+      await this.ensureCanConfirmPayment(id, adminRole);
     }
 
     const paymentChange = {
@@ -120,9 +138,27 @@ export class AdminOrderService {
     return this.details(id);
   }
 
+  private async ensureCanConfirmPayment(orderId: string, adminRole: string) {
+    if (isSuperAdmin(adminRole)) {
+      return;
+    }
+
+    const receiptCount = await this.repository.countReceipts(orderId);
+
+    if (receiptCount === 0) {
+      throw new Error(
+        'Envio de comprovante obrigatorio para confirmar pagamento. Somente SADMIN pode liberar sem comprovante.'
+      );
+    }
+  }
+
   getReceiptForDownload(orderId: string, receiptId: string) {
     return this.repository.getReceiptForDownload(orderId, receiptId);
   }
+}
+
+function isSuperAdmin(role: string) {
+  return ['sadmin', 'superadmin', 'owner'].includes(role.trim().toLowerCase());
 }
 
 export const adminOrderStatuses = [

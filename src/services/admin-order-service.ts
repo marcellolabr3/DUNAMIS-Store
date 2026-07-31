@@ -66,8 +66,21 @@ async function patchOrder(url: string, body: unknown) {
   });
 
   if (!response.ok) {
-    throw new Error('Nao foi possivel atualizar o pedido.');
+    throw new Error(await getErrorMessage(response));
   }
 
   return response.json() as Promise<{ order: AdminOrderDetails }>;
+}
+
+async function getErrorMessage(response: Response) {
+  try {
+    const payload = (await response.json()) as {
+      error?: string;
+      details?: string;
+    };
+
+    return payload.details || payload.error || 'Nao foi possivel atualizar o pedido.';
+  } catch {
+    return 'Nao foi possivel atualizar o pedido.';
+  }
 }

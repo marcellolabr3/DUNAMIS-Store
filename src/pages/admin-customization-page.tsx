@@ -418,12 +418,23 @@ export function AdminCustomizationPage() {
             </Field>
           </div>
 
-          <Field label="Descricao">
-            <textarea
-              className="input min-h-20"
-              onChange={(event) =>
-                setSettings({ ...settings, storeDescription: event.target.value })
-              }
+            <Field label="Descricao">
+              <textarea
+                className="input min-h-20"
+              onChange={(event) => {
+                const storeDescription = event.target.value;
+
+                setSettings({
+                  ...settings,
+                  storeDescription,
+                  pageContent: {
+                    ...settings.pageContent,
+                    homeDescription: storeDescription,
+                    catalogDescription: storeDescription,
+                    infoText: storeDescription
+                  }
+                });
+              }}
               value={settings.storeDescription}
             />
             <span className="text-xs font-semibold text-text-light">

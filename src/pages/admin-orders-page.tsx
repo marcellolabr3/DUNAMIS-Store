@@ -16,6 +16,7 @@ import {
   updateAdminOrderPayment,
   updateAdminOrderStatus
 } from '../services/admin-order-service';
+import { useAdminAuth } from '../hooks/use-admin-auth';
 import {
   type AdminOrderDetails,
   type AdminOrderSummary,
@@ -25,6 +26,7 @@ import { formatMoney } from '../utils/money';
 
 export function AdminOrdersPage() {
   const location = useLocation();
+  const { admin } = useAdminAuth();
   const [orders, setOrders] = useState<AdminOrderSummary[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<AdminOrderDetails>();
   const [query, setQuery] = useState('');
@@ -359,6 +361,7 @@ export function AdminOrdersPage() {
             onPayment={handlePayment}
             onStatusChange={handleStatusChange}
             order={selectedOrder}
+            canOverrideMissingReceipt={isSuperAdmin(admin?.role ?? '')}
           />
         ) : (
           <div className="rounded-md border border-border bg-surface p-6 text-sm text-text-light">
@@ -453,7 +456,8 @@ function OrderDetails({
   onNoteChange,
   onPayment,
   onStatusChange,
-  order
+  order,
+  canOverrideMissingReceipt
 }: {
   isUpdating: boolean;
   note: string;
@@ -461,7 +465,11 @@ function OrderDetails({
   onPayment: (action: 'review' | 'confirm' | 'reject') => Promise<void>;
   onStatusChange: (status: string) => Promise<void>;
   order: AdminOrderDetails;
+  canOverrideMissingReceipt: boolean;
 }) {
+  const hasReceipt = order.receipts.length > 0;
+  const canConfirmPayment = hasReceipt || canOverrideMissingReceipt;
+
   return (
     <aside className="space-y-5 rounded-md border border-border bg-surface p-4">
       <div>
@@ -530,6 +538,13 @@ function OrderDetails({
         )}
       </div>
 
+      {!canConfirmPayment && (
+        <p className="rounded-md border border-warning/30 bg-warning/10 p-3 text-sm font-semibold text-warning">
+          Para confirmar o pagamento, o cliente precisa enviar um comprovante.
+          Somente SADMIN pode liberar sem comprovante.
+        </p>
+      )}
+
       <div className="space-y-2">
         <label className="grid gap-1 text-sm font-semibold text-secondary">
           Observacao da alteracao
@@ -547,7 +562,7 @@ function OrderDetails({
             onClick={() => void onPayment('review')}
           />
           <ActionButton
-            disabled={isUpdating}
+            disabled={isUpdating || !canConfirmPayment}
             icon={<CheckCircle2 aria-hidden="true" size={16} />}
             label="Confirmar"
             onClick={() => void onPayment('confirm')}
@@ -570,7 +585,11 @@ function OrderDetails({
           value={order.status}
         >
           {adminOrderStatuses.map((item) => (
-            <option key={item.value} value={item.value}>
+            <option
+              disabled={item.value === 'PAID' && !canConfirmPayment}
+              key={item.value}
+              value={item.value}
+            >
               {item.label}
             </option>
           ))}
@@ -592,6 +611,10 @@ function OrderDetails({
       </div>
     </aside>
   );
+}
+
+function isSuperAdmin(role: string) {
+  return ['sadmin', 'superadmin', 'owner'].includes(role.trim().toLowerCase());
 }
 
 function Metric({ label, value }: { label: string; value: number | string }) {

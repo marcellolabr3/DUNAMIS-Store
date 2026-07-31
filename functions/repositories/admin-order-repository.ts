@@ -148,6 +148,19 @@ export class AdminOrderRepository {
       .all<AdminOrderReceiptRow>();
   }
 
+  async countReceipts(orderId: string) {
+    const row = await this.db
+      .prepare(
+        `SELECT COUNT(*) AS count
+        FROM payment_receipts
+        WHERE order_id = ?`
+      )
+      .bind(orderId)
+      .first<{ count: number }>();
+
+    return row?.count ?? 0;
+  }
+
   getReceiptForDownload(orderId: string, receiptId: string) {
     return this.db
       .prepare(

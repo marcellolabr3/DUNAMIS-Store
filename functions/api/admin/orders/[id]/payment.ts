@@ -26,6 +26,7 @@ export async function onRequestPatch(context: PagesFunctionContext) {
     const order = await service.updatePayment(
       context.params.id,
       admin.id,
+      admin.role,
       await context.request.json()
     );
 

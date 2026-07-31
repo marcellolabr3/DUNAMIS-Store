@@ -158,10 +158,27 @@ function parsePageContent(row: StoreSettingsRow): StoreSettings['pageContent'] {
     const parsed = JSON.parse(row.page_content || '{}') as Partial<
       StoreSettings['pageContent']
     >;
-
-    return {
+    const pageContent = {
       ...legacyFallback,
       ...parsed
+    };
+
+    return {
+      ...pageContent,
+      homeDescription:
+        pageContent.homeDescription ===
+        defaultStoreSettings.pageContent.homeDescription
+          ? row.store_description
+          : pageContent.homeDescription,
+      catalogDescription:
+        pageContent.catalogDescription ===
+        defaultStoreSettings.pageContent.catalogDescription
+          ? row.store_description
+          : pageContent.catalogDescription,
+      infoText:
+        pageContent.infoText === defaultStoreSettings.pageContent.infoText
+          ? row.store_description
+          : pageContent.infoText
     };
   } catch {
     return legacyFallback;
