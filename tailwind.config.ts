@@ -15,7 +15,8 @@ export default {
         border: 'var(--color-border)',
         success: 'var(--color-success)',
         warning: 'var(--color-warning)',
-        danger: 'var(--color-danger)'
+        danger: 'var(--color-danger)',
+        admin: 'var(--color-admin)'
       }
     }
   },
