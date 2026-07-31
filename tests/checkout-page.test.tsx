@@ -62,27 +62,19 @@ describe('CheckoutPage', () => {
     const user = userEvent.setup();
     const product = demoProducts[2];
     const variant = product.variants[0];
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          order: {
-            orderNumber: 'DNS-2026-000123',
-            lookupCode: 'A7K4M2',
-            publicToken: 'public-token',
-            total: 3990,
-            status: 'PENDING_PAYMENT',
-            payment: {
-              method: 'pix',
-              provider: 'manual_pix',
-              pixPayload: '000201DEMO6304ABCD',
-              qrCodeDataUrl: 'data:image/png;base64,demo',
-              expiresAt: '2026-07-31T18:00:00.000Z'
-            }
-          }
-        }),
-        { status: 201, headers: { 'content-type': 'application/json' } }
-      )
-    );
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      if (String(url) === '/api/settings') {
+        return Promise.resolve(settingsResponse());
+      }
+
+      return Promise.resolve(
+        orderResponse({
+          orderNumber: 'DNS-2026-000123',
+          lookupCode: 'A7K4M2',
+          publicToken: 'public-token'
+        })
+      );
+    });
 
     window.localStorage.setItem(
       cartStorageKey,
@@ -110,42 +102,35 @@ describe('CheckoutPage', () => {
     const user = userEvent.setup();
     const product = demoProducts[2];
     const variant = product.variants[0];
-    const fetchMock = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        new Response(
-          JSON.stringify({
-            order: {
-              orderNumber: 'DNS-2026-000124',
-              lookupCode: 'B8L5N3',
-              publicToken: 'public-token-receipt',
-              total: 3990,
-              status: 'PENDING_PAYMENT',
-              payment: {
-                method: 'pix',
-                provider: 'manual_pix',
-                pixPayload: '000201DEMO6304ABCD',
-                qrCodeDataUrl: 'data:image/png;base64,demo',
-                expiresAt: '2026-07-31T18:00:00.000Z'
-              }
-            }
-          }),
-          { status: 201, headers: { 'content-type': 'application/json' } }
-        )
-      )
-      .mockResolvedValueOnce(
-        new Response(
-          JSON.stringify({
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      if (String(url) === '/api/settings') {
+        return Promise.resolve(settingsResponse());
+      }
+
+      if (String(url) === '/api/orders/public-token-receipt/receipt') {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
             receipt: {
               receiptId: 'receipt-id',
               orderNumber: 'DNS-2026-000124',
               status: 'RECEIPT_SUBMITTED',
               uploadedAt: '2026-07-31T18:10:00.000Z'
             }
-          }),
-          { status: 201, headers: { 'content-type': 'application/json' } }
-        )
+            }),
+            { status: 201, headers: { 'content-type': 'application/json' } }
+          )
+        );
+      }
+
+      return Promise.resolve(
+        orderResponse({
+          orderNumber: 'DNS-2026-000124',
+          lookupCode: 'B8L5N3',
+          publicToken: 'public-token-receipt'
+        })
       );
+    });
 
     window.localStorage.setItem(
       cartStorageKey,
@@ -178,3 +163,55 @@ describe('CheckoutPage', () => {
     fetchMock.mockRestore();
   });
 });
+
+function settingsResponse() {
+  return new Response(
+    JSON.stringify({
+      settings: {
+        storeName: 'DUNAMIS STORE',
+        storeDescription: 'Loja virtual de produtos da igreja.',
+        logoUrl: '',
+        faviconUrl: '',
+        primaryColor: '#F5C400',
+        secondaryColor: '#111111',
+        contactEmail: 'contato@dunamisstore.local',
+        contactPhone: '',
+        whatsappNumber: '',
+        orderExpirationMinutes: 60,
+        allowPickup: true,
+        allowDelivery: false,
+        pickupInstructions: 'Retirada na igreja.',
+        deliveryInstructions: 'Entrega indisponivel.',
+        minimumOrderValue: 0,
+        storeActive: true
+      }
+    }),
+    { status: 200, headers: { 'content-type': 'application/json' } }
+  );
+}
+
+function orderResponse(input: {
+  orderNumber: string;
+  lookupCode: string;
+  publicToken: string;
+}) {
+  return new Response(
+    JSON.stringify({
+      order: {
+        orderNumber: input.orderNumber,
+        lookupCode: input.lookupCode,
+        publicToken: input.publicToken,
+        total: 3990,
+        status: 'PENDING_PAYMENT',
+        payment: {
+          method: 'pix',
+          provider: 'manual_pix',
+          pixPayload: '000201DEMO6304ABCD',
+          qrCodeDataUrl: 'data:image/png;base64,demo',
+          expiresAt: '2026-07-31T18:00:00.000Z'
+        }
+      }
+    }),
+    { status: 201, headers: { 'content-type': 'application/json' } }
+  );
+}

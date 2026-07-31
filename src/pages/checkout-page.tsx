@@ -1,10 +1,14 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
 import { TurnstileField } from '../components/turnstile-field';
 import { useCart } from '../hooks/use-cart';
 import { createCheckoutOrder } from '../services/checkout-service';
+import {
+  type PublicStoreSettings,
+  getPublicSettings
+} from '../services/public-settings-service';
 import { uploadPaymentReceipt } from '../services/receipt-service';
 import type {
   CheckoutAddress,
@@ -52,17 +56,23 @@ export function CheckoutPage() {
   const [error, setError] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState('');
-  const customerValid = customer.fullName.trim().length >= 3 && customer.whatsapp.trim().length >= 8;
+  const [settings, setSettings] = useState<PublicStoreSettings>();
+  const allowPickup = settings?.allowPickup ?? true;
+  const allowDelivery = settings?.allowDelivery ?? false;
+  const customerValid =
+    customer.fullName.trim().length >= 3 && customer.whatsapp.trim().length >= 8;
   const receivingValid =
-    deliveryMethod === 'pickup' ||
-    Boolean(
-      address.postalCode.trim() &&
-        address.street.trim() &&
-        address.number.trim() &&
-        address.neighborhood.trim() &&
-        address.city.trim() &&
-        address.state.trim().length === 2
-    );
+    (deliveryMethod === 'pickup' && allowPickup) ||
+    (deliveryMethod === 'delivery' &&
+      allowDelivery &&
+      Boolean(
+        address.postalCode.trim() &&
+          address.street.trim() &&
+          address.number.trim() &&
+          address.neighborhood.trim() &&
+          address.city.trim() &&
+          address.state.trim().length === 2
+      ));
   const canReview = customerValid && receivingValid;
   const visibleSummary = createdOrder
     ? {
@@ -73,6 +83,38 @@ export function CheckoutPage() {
         total: createdOrder.total
       }
     : summary;
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadSettings() {
+      try {
+        const loadedSettings = await getPublicSettings();
+
+        if (!active) {
+          return;
+        }
+
+        setSettings(loadedSettings);
+
+        if (!loadedSettings.allowPickup && loadedSettings.allowDelivery) {
+          setDeliveryMethod('delivery');
+        } else if (!loadedSettings.allowDelivery) {
+          setDeliveryMethod('pickup');
+        }
+      } catch {
+        if (active) {
+          setSettings(undefined);
+        }
+      }
+    }
+
+    void loadSettings();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   if (lines.length === 0 && !createdOrder) {
     return (
@@ -221,35 +263,47 @@ export function CheckoutPage() {
                 Forma de recebimento
               </h2>
               <div className="grid gap-3 sm:grid-cols-2">
-                <button
-                  className={`rounded-md border p-4 text-left ${
-                    deliveryMethod === 'pickup'
-                      ? 'border-primary ring-2 ring-primary/30'
-                      : 'border-border'
-                  }`}
-                  onClick={() => setDeliveryMethod('pickup')}
-                  type="button"
-                >
-                  <p className="font-black text-secondary">Retirada na igreja</p>
-                  <p className="mt-1 text-sm text-text-light">
-                    Retirada conforme instrucoes do pedido.
-                  </p>
-                </button>
-                <button
-                  className={`rounded-md border p-4 text-left ${
-                    deliveryMethod === 'delivery'
-                      ? 'border-primary ring-2 ring-primary/30'
-                      : 'border-border'
-                  }`}
-                  onClick={() => setDeliveryMethod('delivery')}
-                  type="button"
-                >
-                  <p className="font-black text-secondary">Entrega</p>
-                  <p className="mt-1 text-sm text-text-light">
-                    Endereco necessario para envio futuro.
-                  </p>
-                </button>
+                {allowPickup && (
+                  <button
+                    className={`rounded-md border p-4 text-left ${
+                      deliveryMethod === 'pickup'
+                        ? 'border-primary ring-2 ring-primary/30'
+                        : 'border-border'
+                    }`}
+                    onClick={() => setDeliveryMethod('pickup')}
+                    type="button"
+                  >
+                    <p className="font-black text-secondary">Retirada na igreja</p>
+                    <p className="mt-1 text-sm text-text-light">
+                      {settings?.pickupInstructions ||
+                        'Retirada conforme instrucoes do pedido.'}
+                    </p>
+                  </button>
+                )}
+                {allowDelivery && (
+                  <button
+                    className={`rounded-md border p-4 text-left ${
+                      deliveryMethod === 'delivery'
+                        ? 'border-primary ring-2 ring-primary/30'
+                        : 'border-border'
+                    }`}
+                    onClick={() => setDeliveryMethod('delivery')}
+                    type="button"
+                  >
+                    <p className="font-black text-secondary">Entrega</p>
+                    <p className="mt-1 text-sm text-text-light">
+                      {settings?.deliveryInstructions ||
+                        'Endereco necessario para envio futuro.'}
+                    </p>
+                  </button>
+                )}
               </div>
+
+              {!allowPickup && !allowDelivery && (
+                <p className="rounded-md border border-warning/30 bg-warning/10 p-3 text-sm font-semibold text-warning">
+                  A loja nao possui forma de recebimento ativa no momento.
+                </p>
+              )}
 
               {deliveryMethod === 'delivery' && (
                 <div className="grid gap-4 sm:grid-cols-2">

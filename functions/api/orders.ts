@@ -34,6 +34,19 @@ export async function onRequestPost(context: PagesFunctionContext) {
     });
 
     const settings = await new StoreSettingsRepository(context.env.DB).get();
+
+    if (!settings.storeActive) {
+      throw new Error('Loja indisponivel para novos pedidos.');
+    }
+
+    if (body.deliveryMethod === 'delivery' && !settings.allowDelivery) {
+      throw new Error('Entrega indisponivel no momento.');
+    }
+
+    if (body.deliveryMethod === 'pickup' && !settings.allowPickup) {
+      throw new Error('Retirada indisponivel no momento.');
+    }
+
     const service = new OrderService(
       new OrderRepository(context.env.DB),
       new PaymentService(new ManualPixProvider(settings))

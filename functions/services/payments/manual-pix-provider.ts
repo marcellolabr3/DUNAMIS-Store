@@ -19,11 +19,13 @@ export class ManualPixProvider implements PaymentProvider {
       amount: order.total,
       txid: normalizeTxid(order.orderNumber)
     });
-    const qrCodeDataUrl = await QRCode.toDataURL(pixPayload, {
+    const qrCodeSvg = await QRCode.toString(pixPayload, {
+      type: 'svg',
       errorCorrectionLevel: 'M',
       margin: 1,
       width: 320
     });
+    const qrCodeDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(qrCodeSvg)}`;
     const expiresAt = new Date(
       Date.now() + this.settings.orderExpirationMinutes * 60 * 1000
     ).toISOString();

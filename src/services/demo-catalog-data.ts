@@ -249,7 +249,7 @@ function makeProduct(input: ProductInput): Product {
       }
     ],
     variants: input.variants.map(([name, size, color, stockQuantity], index) => ({
-      id: `${input.id}-var-${index + 1}`,
+      id: getDemoVariantId(input.id, name, index),
       productId: input.id,
       name,
       sku: `${input.sku}-${index + 1}`,
@@ -259,4 +259,33 @@ function makeProduct(input: ProductInput): Product {
       stockQuantity
     }))
   };
+}
+
+function getDemoVariantId(productId: string, name: string, index: number) {
+  const ids: Record<string, string> = {
+    'demo-prod-camiseta-classica:P / Preta': 'demo-var-classica-p-preta',
+    'demo-prod-camiseta-classica:M / Preta': 'demo-var-classica-m-preta',
+    'demo-prod-camiseta-classica:G / Preta': 'demo-var-classica-g-preta',
+    'demo-prod-camiseta-classica:GG / Preta': 'demo-var-classica-gg-preta',
+    'demo-prod-camiseta-classica:P / Amarela': 'demo-var-classica-p-amarela',
+    'demo-prod-camiseta-classica:M / Amarela': 'demo-var-classica-m-amarela',
+    'demo-prod-camiseta-classica:G / Amarela': 'demo-var-classica-g-amarela',
+    'demo-prod-camiseta-classica:GG / Amarela': 'demo-var-classica-gg-amarela',
+    'demo-prod-camiseta-fe:P / Preta': 'demo-var-fe-p-preta',
+    'demo-prod-camiseta-fe:M / Preta': 'demo-var-fe-m-preta',
+    'demo-prod-camiseta-fe:G / Preta': 'demo-var-fe-g-preta',
+    'demo-prod-camiseta-fe:GG / Preta': 'demo-var-fe-gg-preta',
+    'demo-prod-devocional-30-dias:Unico': 'demo-var-devocional-unico',
+    'demo-prod-biblia-estudo:Unico': 'demo-var-biblia-unico',
+    'demo-prod-caneca-dunamis:Unico': 'demo-var-caneca-unico',
+    'demo-prod-pulseira-dunamis:Unico': 'demo-var-pulseira-unico',
+    'demo-prod-conferencia-dunamis:Unico': 'demo-var-conferencia-unico',
+    'demo-prod-camiseta-kids:Tamanho 4': 'demo-var-kids-4',
+    'demo-prod-camiseta-kids:Tamanho 6': 'demo-var-kids-6',
+    'demo-prod-camiseta-kids:Tamanho 8': 'demo-var-kids-8',
+    'demo-prod-camiseta-kids:Tamanho 10': 'demo-var-kids-10',
+    'demo-prod-camiseta-kids:Tamanho 12': 'demo-var-kids-12'
+  };
+
+  return ids[`${productId}:${name}`] ?? `${productId}-var-${index + 1}`;
 }
