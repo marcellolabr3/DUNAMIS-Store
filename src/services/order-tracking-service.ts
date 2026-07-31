@@ -72,18 +72,11 @@ const demoOrders: PublicOrderTracking[] = [
   }
 ];
 
-const demoLookupCodes: Record<string, string> = {
-  'DNS-2026-000001': 'A7K4M2',
-  'DNS-2026-000002': 'B8L5N3'
-};
-
 export async function trackOrder(input: {
   orderNumber: string;
-  lookupCode: string;
 }): Promise<PublicOrderTracking> {
   const params = new URLSearchParams({
-    orderNumber: input.orderNumber,
-    lookupCode: input.lookupCode
+    orderNumber: input.orderNumber
   });
 
   try {
@@ -98,9 +91,7 @@ export async function trackOrder(input: {
     return payload.order;
   } catch {
     const demoOrder = demoOrders.find(
-      (order) =>
-        order.orderNumber === input.orderNumber.trim().toUpperCase() &&
-        demoLookupCodes[order.orderNumber] === input.lookupCode.trim().toUpperCase()
+      (order) => order.orderNumber === input.orderNumber.trim().toUpperCase()
     );
 
     if (!demoOrder) {

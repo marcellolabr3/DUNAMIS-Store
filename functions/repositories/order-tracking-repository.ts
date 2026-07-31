@@ -7,7 +7,7 @@ import type {
 export class OrderTrackingRepository {
   constructor(private readonly db: D1Database) {}
 
-  findByNumberAndLookupCode(orderNumber: string, lookupCode: string) {
+  findByOrderNumber(orderNumber: string) {
     return this.db
       .prepare(
         `SELECT
@@ -27,10 +27,10 @@ export class OrderTrackingRepository {
           c.full_name AS customer_name
         FROM orders o
         INNER JOIN customers c ON c.id = o.customer_id
-        WHERE o.order_number = ? AND o.lookup_code = ?
+        WHERE o.order_number = ?
         LIMIT 1`
       )
-      .bind(orderNumber, lookupCode)
+      .bind(orderNumber)
       .first<OrderTrackingRow>();
   }
 

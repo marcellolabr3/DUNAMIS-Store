@@ -13,11 +13,9 @@ export function OrderTrackingPage() {
   const params = new URLSearchParams(location.search);
   const token = params.get('token');
   const initialOrderNumber = params.get('numero') ?? '';
-  const initialLookupCode = params.get('codigo') ?? '';
   const [orderNumber, setOrderNumber] = useState(
     initialOrderNumber.toUpperCase()
   );
-  const [lookupCode, setLookupCode] = useState(initialLookupCode.toUpperCase());
   const [order, setOrder] = useState<PublicOrderTracking>();
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
@@ -49,11 +47,11 @@ export function OrderTrackingPage() {
     setIsLoading(true);
 
     try {
-      const trackedOrder = await trackOrder({ orderNumber, lookupCode });
+      const trackedOrder = await trackOrder({ orderNumber });
       setOrder(trackedOrder);
     } catch {
       setOrder(undefined);
-      setError('Pedido nao encontrado. Confira o numero e o codigo.');
+      setError('Pedido nao encontrado. Confira o numero informado.');
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +67,8 @@ export function OrderTrackingPage() {
           Acompanhar pedido
         </h1>
         <p className="mt-2 max-w-2xl text-text-light">
-          Consulte o status usando o numero do pedido e o codigo de consulta.
+          Consulte o status usando o numero do pedido informado ao finalizar a
+          compra.
         </p>
       </div>
 
@@ -88,17 +87,6 @@ export function OrderTrackingPage() {
               value={orderNumber}
             />
           </label>
-          <label className="grid gap-2 text-sm font-bold text-secondary">
-            Codigo de consulta
-            <input
-              className="h-11 rounded-md border border-border px-3 text-sm font-normal uppercase outline-none focus:border-primary"
-              maxLength={6}
-              onChange={(event) => setLookupCode(event.target.value.toUpperCase())}
-              placeholder="A7K4M2"
-              required
-              value={lookupCode}
-            />
-          </label>
           <button
             className="h-12 rounded-md bg-primary px-5 text-sm font-black text-secondary hover:bg-primary-hover disabled:opacity-60"
             disabled={isLoading}
@@ -114,9 +102,9 @@ export function OrderTrackingPage() {
             <OrderTrackingDetails order={order} />
           ) : (
             <div className="rounded-md border border-border bg-surface p-8 text-text-light shadow-sm">
-              Use os dados do pedido para visualizar o acompanhamento.
+              Use o numero do pedido para visualizar o acompanhamento.
               <p className="mt-3 text-sm">
-                Demo: `DNS-2026-000001` com codigo `A7K4M2`.
+                Demo: `DNS-2026-000001`.
               </p>
             </div>
           )}

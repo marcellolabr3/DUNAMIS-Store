@@ -422,7 +422,7 @@ export function CheckoutPage() {
               <h2 className="text-2xl font-black text-secondary">
                 Pedido criado
               </h2>
-              <div className="grid gap-3 rounded-md border border-primary/40 bg-primary/10 p-4 sm:grid-cols-2">
+              <div className="rounded-md border border-primary/40 bg-primary/10 p-4">
                 <div>
                   <p className="text-xs font-bold uppercase text-text-light">
                     Numero do pedido
@@ -431,19 +431,10 @@ export function CheckoutPage() {
                     {createdOrder.orderNumber}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs font-bold uppercase text-text-light">
-                    Codigo de consulta
-                  </p>
-                  <p className="mt-1 break-all text-xl font-black text-secondary">
-                    {createdOrder.lookupCode}
-                  </p>
-                </div>
               </div>
               <p className="text-sm leading-6 text-text-light">
-                Guarde esses dados. Eles tambem estao no botao de acompanhamento
-                abaixo, mas o numero e o codigo permitem consultar o pedido
-                manualmente depois.
+                Guarde esse numero. Ele permite consultar o acompanhamento do
+                pedido manualmente depois.
               </p>
               <p className="text-text-light">
                 Total: <strong>{formatMoney(createdOrder.total)}</strong>

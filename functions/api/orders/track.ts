@@ -11,19 +11,15 @@ interface PagesFunctionContext {
 export async function onRequestGet(context: PagesFunctionContext) {
   const url = new URL(context.request.url);
   const orderNumber = url.searchParams.get('orderNumber');
-  const lookupCode = url.searchParams.get('lookupCode');
 
-  if (!orderNumber || !lookupCode) {
-    return errorResponse('Numero do pedido e codigo sao obrigatorios.', 400);
+  if (!orderNumber) {
+    return errorResponse('Numero do pedido e obrigatorio.', 400);
   }
 
   const service = new OrderTrackingService(
     new OrderTrackingRepository(context.env.DB)
   );
-  const order = await service.findByNumberAndLookupCode({
-    orderNumber,
-    lookupCode
-  });
+  const order = await service.findByOrderNumber(orderNumber);
 
   if (!order) {
     return errorResponse('Pedido nao encontrado.', 404);

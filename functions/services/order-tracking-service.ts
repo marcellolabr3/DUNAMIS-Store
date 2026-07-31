@@ -8,13 +8,9 @@ import type {
 export class OrderTrackingService {
   constructor(private readonly repository: OrderTrackingRepository) {}
 
-  async findByNumberAndLookupCode(input: {
-    orderNumber: string;
-    lookupCode: string;
-  }) {
-    const order = await this.repository.findByNumberAndLookupCode(
-      input.orderNumber.trim().toUpperCase(),
-      input.lookupCode.trim().toUpperCase()
+  async findByOrderNumber(orderNumber: string) {
+    const order = await this.repository.findByOrderNumber(
+      orderNumber.trim().toUpperCase()
     );
 
     return order ? this.buildTracking(order) : undefined;

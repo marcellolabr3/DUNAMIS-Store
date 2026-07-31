@@ -25,12 +25,11 @@ describe('OrderTrackingPage', () => {
     vi.restoreAllMocks();
   });
 
-  it('tracks a demo order by number and lookup code', async () => {
+  it('tracks a demo order by number', async () => {
     const user = userEvent.setup();
     renderOrderTracking();
 
     await user.type(screen.getByLabelText('Numero do pedido'), 'DNS-2026-000001');
-    await user.type(screen.getByLabelText('Codigo de consulta'), 'A7K4M2');
     await user.click(screen.getByRole('button', { name: 'Consultar pedido' }));
 
     expect(
@@ -48,11 +47,10 @@ describe('OrderTrackingPage', () => {
     renderOrderTracking();
 
     await user.type(screen.getByLabelText('Numero do pedido'), 'DNS-2026-999999');
-    await user.type(screen.getByLabelText('Codigo de consulta'), 'XXXXXX');
     await user.click(screen.getByRole('button', { name: 'Consultar pedido' }));
 
     expect(
-      await screen.findByText('Pedido nao encontrado. Confira o numero e o codigo.')
+      await screen.findByText('Pedido nao encontrado. Confira o numero informado.')
     ).toBeInTheDocument();
   });
 });
