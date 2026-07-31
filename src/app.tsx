@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 import { AdminLayout } from './layouts/admin-layout';
 import { PublicLayout } from './layouts/public-layout';
 import { AdminOverviewPage } from './pages/admin-overview-page';
+import { CartPage } from './pages/cart-page';
 import { CatalogPage } from './pages/catalog-page';
 import { HomePage } from './pages/home-page';
 import { NotFoundPage } from './pages/not-found-page';
@@ -32,10 +33,11 @@ export function App() {
                 title="Acompanhar pedido"
               />
             </Route>
-            <Route path="/carrinho">
+            <Route path="/carrinho" component={CartPage} />
+            <Route path="/checkout">
               <PlaceholderPage
-                description="O carrinho sera implementado depois do catalogo publico."
-                title="Carrinho"
+                description="O checkout sem conta sera implementado na proxima etapa."
+                title="Checkout"
               />
             </Route>
             <Route component={NotFoundPage} />

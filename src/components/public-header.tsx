@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Menu, ShoppingCart } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 
+import { useCart } from '../hooks/use-cart';
 import { SiteLogo } from './site-logo';
 
 const navItems = [
@@ -12,6 +13,7 @@ const navItems = [
 
 export function PublicHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { summary } = useCart();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
@@ -38,10 +40,15 @@ export function PublicHeader() {
         <div className="flex items-center gap-2">
           <Link
             aria-label="Abrir carrinho"
-            className="inline-grid size-10 place-items-center rounded-md border border-border bg-surface text-secondary transition hover:border-primary hover:bg-primary/10"
+            className="relative inline-grid size-10 place-items-center rounded-md border border-border bg-surface text-secondary transition hover:border-primary hover:bg-primary/10"
             to="/carrinho"
           >
             <ShoppingCart aria-hidden="true" size={20} />
+            {summary.itemCount > 0 && (
+              <span className="absolute -right-2 -top-2 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-xs font-black text-secondary ring-2 ring-surface">
+                {summary.itemCount}
+              </span>
+            )}
           </Link>
           <button
             aria-label="Abrir menu"

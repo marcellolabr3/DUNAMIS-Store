@@ -25,6 +25,7 @@ Implementado ate agora:
 - seed de demonstracao com categorias, produtos, variacoes, banners e pedidos;
 - comando para limpeza dos dados ficticios.
 - loja publica inicial com home, catalogo, busca, filtros e pagina de produto.
+- carrinho local com adicionar, remover, alterar quantidade e calculo visual.
 
 ## Funcionalidades Planejadas
 

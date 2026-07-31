@@ -2,14 +2,25 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import { App } from '../src/app';
+import { CartProvider } from '../src/hooks/cart-provider';
+
+function renderApp(initialEntries = ['/']) {
+  return render(
+    <MemoryRouter initialEntries={initialEntries}>
+      <CartProvider>
+        <App />
+      </CartProvider>
+    </MemoryRouter>
+  );
+}
 
 describe('App', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   it('renders the initial store page', () => {
-    render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>
-    );
+    renderApp();
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'DUNAMIS STORE' })
@@ -17,11 +28,7 @@ describe('App', () => {
   });
 
   it('renders the admin layout route', () => {
-    render(
-      <MemoryRouter initialEntries={['/admin']}>
-        <App />
-      </MemoryRouter>
-    );
+    renderApp(['/admin']);
 
     expect(
       screen.getByRole('navigation', { name: 'Menu administrativo' })
@@ -32,11 +39,7 @@ describe('App', () => {
   });
 
   it('renders the catalog route', () => {
-    render(
-      <MemoryRouter initialEntries={['/catalogo']}>
-        <App />
-      </MemoryRouter>
-    );
+    renderApp(['/catalogo']);
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Produtos DUNAMIS STORE' })
@@ -45,15 +48,19 @@ describe('App', () => {
   });
 
   it('renders a product detail route', () => {
-    render(
-      <MemoryRouter initialEntries={['/produto/caneca-dunamis']}>
-        <App />
-      </MemoryRouter>
-    );
+    renderApp(['/produto/caneca-dunamis']);
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Caneca Dunamis' })
     ).toBeInTheDocument();
     expect(screen.getByText('SKU: DEMO-ACE-CANECA')).toBeInTheDocument();
+  });
+
+  it('renders the cart route empty state', () => {
+    renderApp(['/carrinho']);
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Seu carrinho esta vazio' })
+    ).toBeInTheDocument();
   });
 });
